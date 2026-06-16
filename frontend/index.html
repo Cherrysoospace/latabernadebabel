@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Panel de administración de la Biblioteca — sistema de gestión con MongoDB." />
+  <title>La Taberna de Babel — Panel Admin</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/sidebar.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Logo / Brand -->
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">📚</div>
+      <div class="sidebar-brand-text">
+        <span class="sidebar-brand-title">La Taberna de Babel</span>
+        <span class="sidebar-brand-sub">Panel Admin</span>
+      </div>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="sidebar-nav" aria-label="Navegación principal">
+      <ul class="sidebar-nav-list">
+
+        <li class="sidebar-nav-item">
+          <a href="#/libros" class="sidebar-nav-link" data-section="libros" id="nav-libros">
+            <span class="nav-icon">📖</span>
+            <span class="nav-label">Libros</span>
+          </a>
+        </li>
+
+        <li class="sidebar-nav-item">
+          <a href="#/usuarios" class="sidebar-nav-link" data-section="usuarios" id="nav-usuarios">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Usuarios</span>
+          </a>
+        </li>
+
+        <li class="sidebar-nav-item">
+          <a href="#/prestamos" class="sidebar-nav-link" data-section="prestamos" id="nav-prestamos">
+            <span class="nav-icon">🔖</span>
+            <span class="nav-label">Préstamos</span>
+          </a>
+        </li>
+
+        <li class="sidebar-nav-item">
+          <a href="#/resenas" class="sidebar-nav-link" data-section="resenas" id="nav-resenas">
+            <span class="nav-icon">⭐</span>
+            <span class="nav-label">Reseñas</span>
+          </a>
+        </li>
+
+        <li class="sidebar-nav-item">
+          <a href="#/autores" class="sidebar-nav-link" data-section="autores" id="nav-autores">
+            <span class="nav-icon">✍️</span>
+            <span class="nav-label">Autores</span>
+          </a>
+        </li>
+
+      </ul>
+    </nav>
+
+    <!-- Footer del sidebar -->
+    <div class="sidebar-footer">
+      <span class="sidebar-footer-text">Universidad de Caldas · 2026</span>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CONTENIDO PRINCIPAL
+  ═══════════════════════════════════════════════════════════════ -->
+  <main class="main-content" id="main-content">
+
+    <!-- Header superior -->
+    <header class="topbar" id="topbar">
+      <div class="topbar-left">
+        <h1 class="topbar-title" id="topbar-title">Libros</h1>
+        <span class="topbar-subtitle" id="topbar-subtitle">Gestión de la colección</span>
+      </div>
+      <div class="topbar-right">
+        <span class="status-badge" id="status-badge">
+          <span class="status-dot"></span> Conectado
+        </span>
+      </div>
+    </header>
+
+    <!-- ── SECCIÓN: LIBROS ──────────────────────────────────────── -->
+    <section class="section" id="section-libros">
+
+      <div class="section-toolbar">
+        <div class="toolbar-filters">
+          <input type="search" id="libros-search" class="input-search" placeholder="Buscar por título o autor…" />
+          <select id="libros-filter-genero" class="input-select">
+            <option value="">Todos los géneros</option>
+            <option value="ficcion">Ficción</option>
+            <option value="no ficcion">No ficción</option>
+            <option value="ciencia ficcion">Ciencia ficción</option>
+            <option value="fantasia">Fantasía</option>
+            <option value="terror">Terror</option>
+            <option value="romance">Romance</option>
+            <option value="misterio">Misterio</option>
+            <option value="thriller">Thriller</option>
+            <option value="biografia">Biografía</option>
+            <option value="historia">Historia</option>
+            <option value="ciencia">Ciencia</option>
+            <option value="tecnologia">Tecnología</option>
+            <option value="filosofia">Filosofía</option>
+            <option value="poesia">Poesía</option>
+            <option value="infantil">Infantil</option>
+            <option value="juvenil">Juvenil</option>
+            <option value="autoayuda">Autoayuda</option>
+            <option value="arte">Arte</option>
+            <option value="economia">Economía</option>
+            <option value="derecho">Derecho</option>
+            <option value="otro">Otro</option>
+          </select>
+          <select id="libros-filter-disponible" class="input-select">
+            <option value="">Cualquier disponibilidad</option>
+            <option value="true">Disponibles</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="libros-btn-crear">
+          + Nuevo Libro
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table" id="libros-table">
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Autor</th>
+              <th>Género</th>
+              <th>Año</th>
+              <th>Idioma</th>
+              <th>Disponible</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="libros-tbody">
+            <!-- Filas generadas dinámicamente -->
+          </tbody>
+        </table>
+        <div class="table-empty hidden" id="libros-empty">No se encontraron libros.</div>
+        <div class="loader" id="libros-loader"></div>
+      </div>
+
+    </section>
+
+    <!-- ── SECCIÓN: USUARIOS ────────────────────────────────────── -->
+    <section class="section hidden" id="section-usuarios">
+
+      <div class="section-toolbar">
+        <div class="toolbar-filters">
+          <select id="usuarios-filter-membresia" class="input-select">
+            <option value="">Todas las membresías</option>
+            <option value="basica">Básica</option>
+            <option value="premium">Premium</option>
+            <option value="estudiante">Estudiante</option>
+          </select>
+          <select id="usuarios-filter-activo" class="input-select">
+            <option value="">Todos</option>
+            <option value="true">Activos</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="usuarios-btn-crear">
+          + Nuevo Usuario
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table" id="usuarios-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Membresía</th>
+              <th>Estado</th>
+              <th>Registro</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="usuarios-tbody"></tbody>
+        </table>
+        <div class="table-empty hidden" id="usuarios-empty">No se encontraron usuarios.</div>
+        <div class="loader" id="usuarios-loader"></div>
+      </div>
+
+    </section>
+
+    <!-- ── SECCIÓN: PRÉSTAMOS ───────────────────────────────────── -->
+    <section class="section hidden" id="section-prestamos">
+
+      <div class="section-toolbar">
+        <div class="toolbar-filters">
+          <select id="prestamos-filter-estado" class="input-select">
+            <option value="">Todos los estados</option>
+            <option value="activo">Activo</option>
+            <option value="devuelto">Devuelto</option>
+            <option value="vencido">Vencido</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="prestamos-btn-crear">
+          + Nuevo Préstamo
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table" id="prestamos-table">
+          <thead>
+            <tr>
+              <th>ID Préstamo</th>
+              <th>Usuario ID</th>
+              <th>Libro ID</th>
+              <th>Fecha Inicio</th>
+              <th>Fecha Fin</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="prestamos-tbody"></tbody>
+        </table>
+        <div class="table-empty hidden" id="prestamos-empty">No se encontraron préstamos.</div>
+        <div class="loader" id="prestamos-loader"></div>
+      </div>
+
+    </section>
+
+    <!-- ── SECCIÓN: RESEÑAS ─────────────────────────────────────── -->
+    <section class="section hidden" id="section-resenas">
+
+      <div class="section-toolbar">
+        <div class="toolbar-filters">
+          <select id="resenas-filter-calificacion" class="input-select">
+            <option value="">Cualquier calificación</option>
+            <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+            <option value="4">⭐⭐⭐⭐ (4+)</option>
+            <option value="3">⭐⭐⭐ (3+)</option>
+            <option value="2">⭐⭐ (2+)</option>
+            <option value="1">⭐ (1+)</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="resenas-btn-crear">
+          + Nueva Reseña
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table" id="resenas-table">
+          <thead>
+            <tr>
+              <th>Usuario ID</th>
+              <th>Libro ID</th>
+              <th>Calificación</th>
+              <th>Comentario</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="resenas-tbody"></tbody>
+        </table>
+        <div class="table-empty hidden" id="resenas-empty">No se encontraron reseñas.</div>
+        <div class="loader" id="resenas-loader"></div>
+      </div>
+
+    </section>
+
+    <!-- ── SECCIÓN: AUTORES ─────────────────────────────────────── -->
+    <section class="section hidden" id="section-autores">
+
+      <div class="section-toolbar">
+        <div class="toolbar-filters">
+          <input type="search" id="autores-search" class="input-search" placeholder="Buscar autor…" />
+        </div>
+        <button class="btn btn-primary" id="autores-btn-crear">
+          + Nuevo Autor
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table" id="autores-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Nacionalidad</th>
+              <th>Obras</th>
+              <th>Premios</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="autores-tbody"></tbody>
+        </table>
+        <div class="table-empty hidden" id="autores-empty">No se encontraron autores.</div>
+        <div class="loader" id="autores-loader"></div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       MODAL GENÉRICO
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay hidden" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">Formulario</h2>
+        <button class="modal-close" id="modal-close" aria-label="Cerrar modal">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Contenido inyectado dinámicamente -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">Cancelar</button>
+        <button class="btn btn-primary" id="modal-submit">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       TOAST DE NOTIFICACIONES
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SCRIPTS
+  ═══════════════════════════════════════════════════════════════ -->
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/libros.js"></script>
+  <script src="js/usuarios.js"></script>
+  <script src="js/prestamos.js"></script>
+  <script src="js/resenas.js"></script>
+  <script src="js/autores.js"></script>
+
+</body>
+</html>

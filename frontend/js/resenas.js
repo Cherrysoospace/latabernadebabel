@@ -1,0 +1,249 @@
+/**
+ * resenas.js — CRUD completo para la colección 'resenas'.
+ * Incluye selector de calificación con estrellas interactivas.
+ */
+
+/* ── Cargar y renderizar ──────────────────────────────────────────── */
+
+async function cargarResenas() {
+  showLoader('resenas-loader');
+  hideEmpty('resenas-empty');
+
+  const params = {};
+  const minCal = document.getElementById('resenas-filter-calificacion')?.value;
+  if (minCal) params.min_calificacion = minCal;
+
+  try {
+    const data = await resenasAPI.getAll(params);
+    const resenas = Array.isArray(data) ? data : (data.resenas || []);
+    renderTablaResenas(resenas);
+  } catch (err) {
+    showToast(`Error al cargar reseñas: ${err.message}`, 'error');
+    renderTablaResenas([]);
+  } finally {
+    hideLoader('resenas-loader');
+  }
+}
+
+function renderTablaResenas(resenas) {
+  const tbody = document.getElementById('resenas-tbody');
+  if (!tbody) return;
+
+  if (!resenas.length) {
+    tbody.innerHTML = '';
+    showEmpty('resenas-empty');
+    return;
+  }
+
+  hideEmpty('resenas-empty');
+  tbody.innerHTML = resenas.map(r => `
+    <tr>
+      <td>${shortId(r.usuario_id)}</td>
+      <td>${shortId(r.libro_id)}</td>
+      <td>${starsHTML(r.calificacion)}</td>
+      <td class="td-truncate" title="${(r.comentario || '').replace(/"/g, '&quot;')}">${truncate(r.comentario, 55)}</td>
+      <td style="color:var(--text-muted)">${formatDate(r.fecha)}</td>
+      <td>
+        <div class="td-actions">
+          <button class="btn btn-sm btn-secondary" onclick="abrirEditarResena('${r._id}')">Editar</button>
+          <button class="btn btn-sm btn-danger"    onclick="eliminarResena('${r._id}')">Eliminar</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+/* ── Eliminar ─────────────────────────────────────────────────────── */
+
+function eliminarResena(id) {
+  confirmAction(
+    '¿Eliminar esta reseña? Esta acción no se puede deshacer.',
+    async () => {
+      try {
+        await resenasAPI.delete(id);
+        showToast('Reseña eliminada.', 'success');
+        cargarResenas();
+      } catch (err) {
+        showToast(`Error: ${err.message}`, 'error');
+      }
+    }
+  );
+}
+
+/* ── Selector de estrellas ────────────────────────────────────────── */
+
+/**
+ * Inicializa el selector de estrellas interactivo dentro del modal.
+ * Escucha clics en los botones con clase .star-btn y actualiza el
+ * valor del input oculto #f-calificacion.
+ */
+function initStarPicker(valorInicial = 0) {
+  const picker = document.getElementById('star-picker');
+  if (!picker) return;
+
+  const stars = picker.querySelectorAll('.star-btn');
+  let selected = valorInicial;
+
+  function updateStars(n) {
+    stars.forEach((btn, i) => {
+      btn.classList.toggle('active', i < n);
+    });
+    document.getElementById('f-calificacion').value = n;
+  }
+
+  updateStars(selected);
+
+  stars.forEach((btn, i) => {
+    btn.addEventListener('click', () => {
+      selected = i + 1;
+      updateStars(selected);
+    });
+    btn.addEventListener('mouseenter', () => updateStars(i + 1));
+    btn.addEventListener('mouseleave', () => updateStars(selected));
+  });
+}
+
+/* ── Formulario ───────────────────────────────────────────────────── */
+
+async function buildFormResenaHTML(r = {}) {
+  // Cargar usuarios y libros para los selects
+  let usuarios = [];
+  let libros   = [];
+  try {
+    const [uData, lData] = await Promise.all([
+      usuariosAPI.getAll({ limit: 200 }),
+      librosAPI.getAll({ limit: 200 }),
+    ]);
+    usuarios = Array.isArray(uData) ? uData : (uData.usuarios || []);
+    libros   = Array.isArray(lData) ? lData : (lData.libros   || []);
+  } catch (_) {}
+
+  const optUsuarios = usuarios.map(u =>
+    `<option value="${u._id}" ${r.usuario_id === u._id ? 'selected' : ''}>${u.nombre} (${u.correo})</option>`
+  ).join('');
+
+  const optLibros = libros.map(l =>
+    `<option value="${l._id}" ${r.libro_id === l._id ? 'selected' : ''}>${l.titulo}</option>`
+  ).join('');
+
+  // Solo mostrar los selects al crear (no al editar)
+  const isEdit = !!r._id;
+  const selectsHTML = isEdit ? '' : `
+    <div class="form-group">
+      <label class="form-label" for="r-usuario">Usuario *</label>
+      <select class="input-field input-select" id="r-usuario">
+        <option value="">Selecciona un usuario…</option>
+        ${optUsuarios}
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="r-libro">Libro *</label>
+      <select class="input-field input-select" id="r-libro">
+        <option value="">Selecciona un libro…</option>
+        ${optLibros}
+      </select>
+    </div>
+  `;
+
+  return `
+    ${selectsHTML}
+
+    <div class="form-group">
+      <label class="form-label">Calificación *</label>
+      <div class="star-picker" id="star-picker">
+        <button type="button" class="star-btn" aria-label="1 estrella">★</button>
+        <button type="button" class="star-btn" aria-label="2 estrellas">★</button>
+        <button type="button" class="star-btn" aria-label="3 estrellas">★</button>
+        <button type="button" class="star-btn" aria-label="4 estrellas">★</button>
+        <button type="button" class="star-btn" aria-label="5 estrellas">★</button>
+      </div>
+      <input type="hidden" id="f-calificacion" value="${r.calificacion || 0}" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="r-comentario">Comentario</label>
+      <textarea class="input-field input-textarea" id="r-comentario"
+                placeholder="Escribe tu reseña aquí…">${r.comentario || ''}</textarea>
+    </div>
+  `;
+}
+
+async function abrirCrearResena() {
+  modal.open('Nueva Reseña', '<div class="loader visible" style="margin:2rem auto"></div>', () => {});
+  const formHTML = await buildFormResenaHTML();
+  document.getElementById('modal-body').innerHTML = formHTML;
+  initStarPicker(0);
+
+  const submitBtn = document.getElementById('modal-submit');
+  const newBtn = submitBtn.cloneNode(true);
+  submitBtn.replaceWith(newBtn);
+
+  newBtn.addEventListener('click', async () => {
+    const usuario_id    = document.getElementById('r-usuario')?.value;
+    const libro_id      = document.getElementById('r-libro')?.value;
+    const calificacion  = parseInt(document.getElementById('f-calificacion')?.value || '0');
+    const comentario    = document.getElementById('r-comentario')?.value.trim();
+
+    if (!usuario_id || !libro_id) {
+      showToast('Debes seleccionar un usuario y un libro.', 'warning');
+      return;
+    }
+    if (!calificacion || calificacion < 1 || calificacion > 5) {
+      showToast('La calificación debe estar entre 1 y 5 estrellas.', 'warning');
+      return;
+    }
+
+    try {
+      await resenasAPI.create({ usuario_id, libro_id, calificacion, comentario });
+      showToast('Reseña creada exitosamente.', 'success');
+      modal.close();
+      cargarResenas();
+    } catch (err) {
+      showToast(`Error: ${err.message}`, 'error');
+    }
+  });
+}
+
+async function abrirEditarResena(id) {
+  try {
+    const r = await resenasAPI.getById(id);
+    modal.open('Editar Reseña', '<div class="loader visible" style="margin:2rem auto"></div>', () => {});
+    const formHTML = await buildFormResenaHTML(r);
+    document.getElementById('modal-body').innerHTML = formHTML;
+    initStarPicker(r.calificacion || 0);
+
+    const submitBtn = document.getElementById('modal-submit');
+    const newBtn = submitBtn.cloneNode(true);
+    submitBtn.replaceWith(newBtn);
+
+    newBtn.addEventListener('click', async () => {
+      const calificacion = parseInt(document.getElementById('f-calificacion')?.value || '0');
+      const comentario   = document.getElementById('r-comentario')?.value.trim();
+
+      if (!calificacion || calificacion < 1 || calificacion > 5) {
+        showToast('La calificación debe estar entre 1 y 5 estrellas.', 'warning');
+        return;
+      }
+
+      try {
+        await resenasAPI.update(id, { calificacion, comentario });
+        showToast('Reseña actualizada.', 'success');
+        modal.close();
+        cargarResenas();
+      } catch (err) {
+        showToast(`Error: ${err.message}`, 'error');
+      }
+    });
+  } catch (err) {
+    showToast(`Error al cargar reseña: ${err.message}`, 'error');
+  }
+}
+
+/* ── Inicialización ───────────────────────────────────────────────── */
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('resenas-btn-crear')?.addEventListener('click', abrirCrearResena);
+  document.getElementById('resenas-filter-calificacion')?.addEventListener('change', cargarResenas);
+
+  registerLoader('/resenas', cargarResenas);
+});

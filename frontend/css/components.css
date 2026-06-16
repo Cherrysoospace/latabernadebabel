@@ -1,0 +1,510 @@
+/* ═══════════════════════════════════════════════════════════════════
+   components.css — Tablas, Botones, Modales, Formularios,
+                    Badges, Toasts, Loader, Stars
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── Botones ───────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 0.83rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition:
+    background var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition),
+    color var(--transition);
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* Primario — dorado */
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold-400) 0%, var(--gold-300) 100%);
+  color: #0b0b0e;
+  border-color: transparent;
+  box-shadow: 0 2px 10px var(--gold-glow);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--gold-300) 0%, #ffd980 100%);
+  box-shadow: 0 4px 18px rgba(212,168,67,0.4);
+}
+
+/* Secundario — outline */
+.btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border-normal);
+}
+
+.btn-secondary:hover {
+  background: var(--glass-hover);
+  color: var(--text-primary);
+  border-color: var(--border-accent);
+}
+
+/* Ghost */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+
+.btn-ghost:hover {
+  background: var(--glass-hover);
+  color: var(--text-primary);
+}
+
+/* Peligro */
+.btn-danger {
+  background: rgba(224, 82, 82, 0.12);
+  color: var(--color-danger);
+  border-color: rgba(224, 82, 82, 0.25);
+}
+
+.btn-danger:hover {
+  background: rgba(224, 82, 82, 0.22);
+  box-shadow: 0 2px 10px rgba(224,82,82,0.2);
+}
+
+/* Éxito (devolver préstamo) */
+.btn-success {
+  background: rgba(61, 186, 120, 0.12);
+  color: var(--color-success);
+  border-color: rgba(61, 186, 120, 0.25);
+}
+
+.btn-success:hover {
+  background: rgba(61, 186, 120, 0.22);
+  box-shadow: 0 2px 10px rgba(61,186,120,0.2);
+}
+
+/* Botones pequeños (en tabla) */
+.btn-sm {
+  padding: 3px var(--spacing-3);
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Inputs y Select ───────────────────────────────────────────────── */
+.input-search,
+.input-select,
+.input-field,
+.input-textarea {
+  background: var(--glass-bg);
+  border: 1px solid var(--border-normal);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: 0.85rem;
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
+  outline: none;
+}
+
+.input-search {
+  min-width: 220px;
+}
+
+.input-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239e9b95' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.input-search::placeholder {
+  color: var(--text-muted);
+}
+
+.input-search:focus,
+.input-select:focus,
+.input-field:focus,
+.input-textarea:focus {
+  border-color: var(--gold-400);
+  box-shadow: 0 0 0 3px var(--gold-glow);
+}
+
+.input-field,
+.input-textarea {
+  width: 100%;
+  display: block;
+}
+
+.input-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Opción del select en tema oscuro */
+.input-select option {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* ── Tabla de datos ────────────────────────────────────────────────── */
+.table-wrapper {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead {
+  background: rgba(212, 168, 67, 0.06);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.data-table th {
+  padding: var(--spacing-3) var(--spacing-4);
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-400);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  vertical-align: middle;
+}
+
+.data-table tbody tr {
+  transition: background var(--transition);
+}
+
+.data-table tbody tr:hover {
+  background: var(--glass-hover);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Texto truncado en celdas largas */
+.td-truncate {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Celda de acciones */
+.td-actions {
+  display: flex;
+  gap: var(--spacing-2);
+  align-items: center;
+}
+
+/* Estado vacío */
+.table-empty {
+  text-align: center;
+  padding: var(--spacing-8);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ── Loader / Spinner ──────────────────────────────────────────────── */
+.loader {
+  display: none;
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-normal);
+  border-top-color: var(--gold-400);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: var(--spacing-8) auto;
+}
+
+.loader.visible {
+  display: block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Badges de estado / membresía ──────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--spacing-3);
+  border-radius: var(--radius-xl);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-success {
+  background: rgba(61,186,120,0.12);
+  color: var(--color-success);
+  border: 1px solid rgba(61,186,120,0.25);
+}
+
+.badge-danger {
+  background: rgba(224,82,82,0.12);
+  color: var(--color-danger);
+  border: 1px solid rgba(224,82,82,0.2);
+}
+
+.badge-warning {
+  background: rgba(212,168,67,0.14);
+  color: var(--gold-300);
+  border: 1px solid rgba(212,168,67,0.25);
+}
+
+.badge-info {
+  background: rgba(91,141,238,0.12);
+  color: var(--color-info);
+  border: 1px solid rgba(91,141,238,0.2);
+}
+
+.badge-muted {
+  background: rgba(255,255,255,0.05);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-normal);
+}
+
+/* ── Estrellas de calificación ──────────────────────────────────────── */
+.stars {
+  display: inline-flex;
+  gap: 2px;
+  color: var(--gold-300);
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.stars .star-empty {
+  color: var(--text-muted);
+}
+
+/* Selector de estrellas en formulario */
+.star-picker {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.star-picker .star-btn {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition), transform var(--transition);
+  line-height: 1;
+}
+
+.star-picker .star-btn:hover,
+.star-picker .star-btn.active {
+  color: var(--gold-300);
+  transform: scale(1.15);
+}
+
+/* ── Modal ─────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-4);
+  animation: overlayIn 0.2s ease forwards;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-gold), var(--shadow-lg);
+  animation: modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-5) var(--spacing-6);
+  border-bottom: 1px solid var(--border-subtle);
+  /* Línea dorada arriba */
+  border-top: 2px solid var(--gold-400);
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gold-300);
+  letter-spacing: 0.06em;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color var(--transition), transform var(--transition);
+  padding: 0;
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-normal) transparent;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4) var(--spacing-6);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* ── Grupo de campo de formulario ──────────────────────────────────── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.form-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-4);
+}
+
+/* ── Toast de notificaciones ───────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: var(--spacing-6);
+  right: var(--spacing-6);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-3) var(--spacing-5);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
+  pointer-events: all;
+  min-width: 260px;
+  max-width: 380px;
+  animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+.toast.removing {
+  animation: toastOut 0.3s ease forwards;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(30px); }
+}
+
+.toast-success {
+  border-left: 3px solid var(--color-success);
+}
+
+.toast-error {
+  border-left: 3px solid var(--color-danger);
+}
+
+.toast-warning {
+  border-left: 3px solid var(--color-warning);
+}
+
+.toast-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  line-height: 1.4;
+}

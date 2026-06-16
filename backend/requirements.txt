@@ -1,0 +1,24 @@
+# ========================
+# Framework principal
+# ========================
+Flask==3.1.1
+
+# ========================
+# Base de datos MongoDB
+# ========================
+pymongo==4.10.1
+
+# ========================
+# Variables de entorno
+# ========================
+python-dotenv==1.1.0
+
+# ========================
+# CORS (para el frontend Vanilla JS)
+# ========================
+Flask-Cors==5.0.1
+
+# ========================
+# Utilidades
+# ========================
+# Serialización de ObjectId y datetime de MongoDB
