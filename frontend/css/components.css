@@ -187,6 +187,20 @@
   white-space: nowrap;
 }
 
+.data-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+.data-table th.sortable:hover {
+  color: var(--gold-300);
+}
+.data-table th.sortable .sort-arrow {
+  display: inline-block;
+  width: 1rem;
+  margin-left: 0.15rem;
+}
+
 .data-table td {
   padding: var(--spacing-3) var(--spacing-4);
   border-bottom: 1px solid var(--border-subtle);
@@ -507,4 +521,287 @@
 .toast-message {
   flex: 1;
   line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   nosql.css — Panel de consultas NoSQL (mongosh shell)
+════════════════════════════════════════════════════════════════════ */
+
+.nosql-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: var(--spacing-5);
+  min-height: calc(100vh - 120px);
+}
+
+.nosql-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.nosql-input-group {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.nosql-textarea {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-normal);
+  border-radius: var(--radius-md);
+  color: #e8dcc8;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  padding: var(--spacing-3) var(--spacing-4);
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  min-height: 60px;
+}
+
+.nosql-textarea:focus {
+  border-color: var(--gold-400);
+  box-shadow: 0 0 0 3px var(--gold-glow);
+}
+
+.nosql-textarea::placeholder {
+  color: var(--text-muted);
+  font-family: var(--font-body);
+}
+
+/* ── Resultados / historial ─────────────────────────────────────── */
+
+.nosql-resultados {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  max-height: calc(100vh - 260px);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-normal) transparent;
+}
+
+.nosql-resultados::-webkit-scrollbar {
+  width: 4px;
+}
+.nosql-resultados::-webkit-scrollbar-track {
+  background: transparent;
+}
+.nosql-resultados::-webkit-scrollbar-thumb {
+  background: var(--border-normal);
+  border-radius: 4px;
+}
+
+.nosql-empty {
+  text-align: center;
+  padding: var(--spacing-8);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ── Cada item del historial ────────────────────────────────────── */
+
+.nosql-item {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  animation: fadeIn 0.2s ease forwards;
+}
+
+.nosql-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+}
+
+.nosql-command {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.82rem;
+  color: var(--gold-300);
+  background: rgba(212,168,67,0.08);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(212,168,67,0.12);
+  word-break: break-all;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.nosql-timestamp {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nosql-item-pending {
+  opacity: 0.7;
+}
+
+.nosql-item-error {
+  border-left: 3px solid var(--color-danger);
+}
+
+.nosql-item-ok {
+  border-left: 3px solid var(--color-success);
+}
+
+/* ── Tipos de resultado ─────────────────────────────────────────── */
+
+.nosql-result {
+  font-size: 0.85rem;
+  padding: var(--spacing-2) 0;
+}
+
+.nosql-result-number {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--gold-300);
+  font-family: var(--font-display);
+}
+
+.nosql-result-count {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-2);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.nosql-result-json {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: rgba(0,0,0,0.2);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.nosql-result-error {
+  color: var(--color-danger);
+  font-weight: 500;
+}
+
+.nosql-result-success {
+  color: var(--color-success);
+  font-weight: 500;
+}
+
+.nosql-result-empty,
+.nosql-result-null {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.nosql-result-pending {
+  color: var(--text-muted);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+.nosql-cell-null {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Tabla dentro del resultado ──────────────────────────────────── */
+
+.nosql-table-wrapper {
+  margin-top: var(--spacing-2);
+}
+
+.nosql-table {
+  font-size: 0.75rem;
+}
+
+.nosql-table th,
+.nosql-table td {
+  padding: var(--spacing-2) var(--spacing-3);
+}
+
+/* ── Sidebar de ejemplos ────────────────────────────────────────── */
+
+.nosql-sidebar {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  align-self: start;
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.nosql-sidebar-title {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-400);
+  margin: 0;
+}
+
+.nosql-ejemplos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.nosql-ejemplo-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-2) var(--spacing-3);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+  font-family: var(--font-body);
+}
+
+.nosql-ejemplo-btn:hover {
+  background: var(--glass-hover);
+  border-color: var(--gold-400);
+}
+
+.ejemplo-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.ejemplo-cmd {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

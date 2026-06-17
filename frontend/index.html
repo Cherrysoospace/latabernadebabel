@@ -71,6 +71,13 @@
           </a>
         </li>
 
+        <li class="sidebar-nav-item">
+          <a href="#/nosql" class="sidebar-nav-link" data-section="nosql" id="nav-nosql">
+            <span class="nav-icon">⚡</span>
+            <span class="nav-label">Consultas NoSQL</span>
+          </a>
+        </li>
+
       </ul>
     </nav>
 
@@ -143,12 +150,13 @@
         <table class="data-table" id="libros-table">
           <thead>
             <tr>
-              <th>Título</th>
-              <th>Autor</th>
-              <th>Género</th>
-              <th>Año</th>
-              <th>Idioma</th>
-              <th>Disponible</th>
+              <th onclick="ordenarLibros('libro_id')" data-field="libro_id" class="sortable">ID<span class="sort-arrow"></span></th>
+              <th onclick="ordenarLibros('titulo')" data-field="titulo" class="sortable">Título<span class="sort-arrow"></span></th>
+              <th onclick="ordenarLibros('autor_nombre')" data-field="autor_nombre" class="sortable">Autor<span class="sort-arrow"></span></th>
+              <th onclick="ordenarLibros('genero')" data-field="genero" class="sortable">Género<span class="sort-arrow"></span></th>
+              <th onclick="ordenarLibros('anio_publicacion')" data-field="anio_publicacion" class="sortable">Año<span class="sort-arrow"></span></th>
+              <th onclick="ordenarLibros('idioma')" data-field="idioma" class="sortable">Idioma<span class="sort-arrow"></span></th>
+              <th onclick="ordenarLibros('disponible')" data-field="disponible" class="sortable">Disponible<span class="sort-arrow"></span></th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -187,11 +195,12 @@
         <table class="data-table" id="usuarios-table">
           <thead>
             <tr>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Membresía</th>
-              <th>Estado</th>
-              <th>Registro</th>
+              <th onclick="ordenarUsuarios('usuario_id')" data-field="usuario_id" class="sortable">ID<span class="sort-arrow"></span></th>
+              <th onclick="ordenarUsuarios('nombre')" data-field="nombre" class="sortable">Nombre<span class="sort-arrow"></span></th>
+              <th onclick="ordenarUsuarios('correo')" data-field="correo" class="sortable">Correo<span class="sort-arrow"></span></th>
+              <th onclick="ordenarUsuarios('membresia')" data-field="membresia" class="sortable">Membresía<span class="sort-arrow"></span></th>
+              <th onclick="ordenarUsuarios('activo')" data-field="activo" class="sortable">Estado<span class="sort-arrow"></span></th>
+              <th onclick="ordenarUsuarios('fecha_registro')" data-field="fecha_registro" class="sortable">Registro<span class="sort-arrow"></span></th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -224,12 +233,12 @@
         <table class="data-table" id="prestamos-table">
           <thead>
             <tr>
-              <th>ID Préstamo</th>
-              <th>Usuario ID</th>
-              <th>Libro ID</th>
-              <th>Fecha Inicio</th>
-              <th>Fecha Fin</th>
-              <th>Estado</th>
+              <th onclick="ordenarPrestamos('prestamo_id')" data-field="prestamo_id" class="sortable">ID Préstamo<span class="sort-arrow"></span></th>
+              <th onclick="ordenarPrestamos('usuario_id')" data-field="usuario_id" class="sortable">Usuario ID<span class="sort-arrow"></span></th>
+              <th onclick="ordenarPrestamos('libro_id')" data-field="libro_id" class="sortable">Libro ID<span class="sort-arrow"></span></th>
+              <th onclick="ordenarPrestamos('fecha_inicio')" data-field="fecha_inicio" class="sortable">Fecha Inicio<span class="sort-arrow"></span></th>
+              <th onclick="ordenarPrestamos('fecha_fin')" data-field="fecha_fin" class="sortable">Fecha Fin<span class="sort-arrow"></span></th>
+              <th onclick="ordenarPrestamos('estado')" data-field="estado" class="sortable">Estado<span class="sort-arrow"></span></th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -264,11 +273,11 @@
         <table class="data-table" id="resenas-table">
           <thead>
             <tr>
-              <th>Usuario ID</th>
-              <th>Libro ID</th>
-              <th>Calificación</th>
-              <th>Comentario</th>
-              <th>Fecha</th>
+              <th onclick="ordenarResenas('usuario_id')" data-field="usuario_id" class="sortable">Usuario ID<span class="sort-arrow"></span></th>
+              <th onclick="ordenarResenas('libro_id')" data-field="libro_id" class="sortable">Libro ID<span class="sort-arrow"></span></th>
+              <th onclick="ordenarResenas('calificacion')" data-field="calificacion" class="sortable">Calificación<span class="sort-arrow"></span></th>
+              <th onclick="ordenarResenas('comentario')" data-field="comentario" class="sortable">Comentario<span class="sort-arrow"></span></th>
+              <th onclick="ordenarResenas('fecha')" data-field="fecha" class="sortable">Fecha<span class="sort-arrow"></span></th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -296,10 +305,11 @@
         <table class="data-table" id="autores-table">
           <thead>
             <tr>
-              <th>Nombre</th>
-              <th>Nacionalidad</th>
-              <th>Obras</th>
-              <th>Premios</th>
+              <th onclick="ordenarAutores('autor_id')" data-field="autor_id" class="sortable">ID<span class="sort-arrow"></span></th>
+              <th onclick="ordenarAutores('nombre')" data-field="nombre" class="sortable">Nombre<span class="sort-arrow"></span></th>
+              <th onclick="ordenarAutores('nacionalidad')" data-field="nacionalidad" class="sortable">Nacionalidad<span class="sort-arrow"></span></th>
+              <th onclick="ordenarAutores('obras')" data-field="obras" class="sortable">Obras<span class="sort-arrow"></span></th>
+              <th onclick="ordenarAutores('premios')" data-field="premios" class="sortable">Premios<span class="sort-arrow"></span></th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -307,6 +317,32 @@
         </table>
         <div class="table-empty hidden" id="autores-empty">No se encontraron autores.</div>
         <div class="loader" id="autores-loader"></div>
+      </div>
+
+    </section>
+
+    <!-- ── SECCIÓN: CONSULTAS NoSQL ──────────────────────────────── -->
+    <section class="section hidden" id="section-nosql">
+
+      <div class="nosql-layout">
+
+        <div class="nosql-main">
+          <div class="nosql-input-group">
+            <textarea id="nosql-input" class="nosql-textarea" placeholder='Ej: db.libros.findOne({ titulo: "El Quijote" })' rows="3" spellcheck="false"></textarea>
+            <button class="btn btn-primary" id="nosql-btn-ejecutar">▶ Ejecutar</button>
+            <div class="loader" id="nosql-loader"></div>
+          </div>
+
+          <div class="nosql-resultados" id="nosql-historial">
+            <div class="nosql-empty">Aún no has ejecutado ninguna consulta.</div>
+          </div>
+        </div>
+
+        <aside class="nosql-sidebar">
+          <h3 class="nosql-sidebar-title">Ejemplos rápidos</h3>
+          <div class="nosql-ejemplos" id="nosql-ejemplos"></div>
+        </aside>
+
       </div>
 
     </section>
@@ -348,6 +384,7 @@
   <script src="js/prestamos.js"></script>
   <script src="js/resenas.js"></script>
   <script src="js/autores.js"></script>
+  <script src="js/nosql.js"></script>
 
 </body>
 </html>

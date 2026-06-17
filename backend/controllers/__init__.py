@@ -57,6 +57,10 @@ from .autor_controller import (
     top_autores_obras,
 )
 
+from .nosql_controller import (
+    ejecutar_consulta,
+)
+
 __all__ = [
     # Libros
     "crear_libro", "obtener_libros", "obtener_libro",
@@ -79,4 +83,6 @@ __all__ = [
     "actualizar_autor", "agregar_obra", "remover_obra",
     "agregar_premio", "eliminar_autor",
     "estadisticas_nacionalidades", "top_autores_obras",
+    # NoSQL
+    "ejecutar_consulta",
 ]

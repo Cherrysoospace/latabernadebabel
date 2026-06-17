@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
+from pymongo import ReturnDocument
 
 # Cargar variables del archivo .env
 load_dotenv()
@@ -40,3 +41,18 @@ def get_db():
     except ConnectionFailure as e:
         print(f"❌ Error de conexión a MongoDB: {e}")
         raise
+
+
+def generar_id(prefijo: str, coleccion_nombre: str, db) -> str:
+    """
+    Genera un ID auto-incremental con prefijo utilizando una colección 'counters'.
+    Ejemplo: AUT-001, LIB-001, USR-001, PRE-001, RES-001
+    """
+    counter = db.counters.find_one_and_update(
+        {"_id": coleccion_nombre},
+        {"$inc": {"seq": 1}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER,
+    )
+    seq = counter["seq"]
+    return f"{prefijo}-{seq:04d}"

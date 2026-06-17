@@ -209,9 +209,83 @@ function hideEmpty(id)    { document.getElementById(id)?.classList.add('hidden')
 /* ── Serializar ID corto para mostrar en tabla ───────────────────────── */
 
 /**
- * Muestra solo los primeros 8 caracteres del ObjectId en la tabla.
+ * Muestra el ID completo (ahora son prefijos cortos como LIB-001).
  * @param {string} id
  */
 function shortId(id) {
-  return id ? `<code style="font-size:0.75rem;color:var(--text-muted)">${id.slice(0, 8)}…</code>` : '—';
+  return id ? `<code style="font-size:0.75rem;color:var(--text-muted)">${id}</code>` : '—';
+}
+
+/* ── Ordenamiento de tablas ─────────────────────────────────────────── */
+
+/**
+ * Ordena un array de objetos por un campo, con soporte para strings y números.
+ */
+function sortData(data, field, dir) {
+  const sorted = [...data];
+  sorted.sort((a, b) => {
+    const va = a[field];
+    const vb = b[field];
+    if (va == null) return 1;
+    if (vb == null) return -1;
+    let cmp;
+    if (typeof va === 'string') {
+      cmp = va.localeCompare(vb, 'es', { sensitivity: 'base' });
+    } else if (va instanceof Date || (typeof va === 'string' && va.includes('T'))) {
+      cmp = new Date(va) - new Date(vb);
+    } else {
+      cmp = va - vb;
+    }
+    return dir === 'asc' ? cmp : -cmp;
+  });
+  return sorted;
+}
+
+/**
+ * Genera el HTML del indicador de orden para un encabezado.
+ * Muestra ▲ si es asc, ▼ si es desc, o vacío si no está ordenado por ese campo.
+ */
+function sortArrow(field, state) {
+  if (!state || state.field !== field) return '';
+  return state.dir === 'asc'
+    ? ' <span style="font-size:0.65rem">&#9650;</span>'
+    : ' <span style="font-size:0.65rem">&#9660;</span>';
+}
+
+/**
+ * Administra el estado de orden de una tabla.
+ * @param {object} state  — Estado mutable: { field, dir }
+ * @param {string} field  — Campo por el que se hace clic
+ * @param {array}  data   — Array de datos a ordenar (se modifica in-place)
+ * @param {function} renderFn — Función que renderiza la tabla con los datos ordenados
+ */
+function toggleSort(state, field, data, renderFn) {
+  if (state.field !== field) {
+    state.field = field;
+    state.dir = 'asc';
+  } else {
+    state.dir = state.dir === 'asc' ? 'desc' : 'asc';
+  }
+  const sorted = sortData(data, state.field, state.dir);
+  data.length = 0;
+  data.push(...sorted);
+  renderFn(data);
+}
+
+/**
+ * Actualiza los indicadores visuales (▲/▼) en los encabezados de tabla.
+ * @param {string} selector — Selector CSS de los `<th>` que tienen data-field
+ * @param {object} state    — Estado de orden { field, dir }
+ */
+function actualizarIndicadores(selector, state) {
+  document.querySelectorAll(selector).forEach(th => {
+    const field = th.dataset.field;
+    const span = th.querySelector('.sort-arrow');
+    if (!span) return;
+    if (state.field === field) {
+      span.textContent = state.dir === 'asc' ? ' ▲' : ' ▼';
+    } else {
+      span.textContent = '';
+    }
+  });
 }

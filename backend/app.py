@@ -13,6 +13,7 @@ from routes.usuario_routes  import usuario_bp
 from routes.prestamo_routes import prestamo_bp
 from routes.resena_routes   import resena_bp
 from routes.autor_routes    import autor_bp
+from routes.nosql_routes    import nosql_bp
 
 
 def create_app():
@@ -33,6 +34,7 @@ def create_app():
     app.register_blueprint(prestamo_bp, url_prefix="/api/prestamos")
     app.register_blueprint(resena_bp,   url_prefix="/api/resenas")
     app.register_blueprint(autor_bp,    url_prefix="/api/autores")
+    app.register_blueprint(nosql_bp,    url_prefix="/api/nosql")
 
     # ── Ruta de salud ─────────────────────────────────────────────────────────
     @app.route("/api/health", methods=["GET"])

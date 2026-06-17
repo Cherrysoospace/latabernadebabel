@@ -3,6 +3,15 @@
  * Incluye selector de calificación con estrellas interactivas.
  */
 
+/* ── Estado local ─────────────────────────────────────────────────── */
+let resenasData = [];
+let sortStateResenas = { field: null, dir: 'asc' };
+
+function ordenarResenas(field) {
+  toggleSort(sortStateResenas, field, resenasData, renderTablaResenas);
+  actualizarIndicadores('#resenas-table th[data-field]', sortStateResenas);
+}
+
 /* ── Cargar y renderizar ──────────────────────────────────────────── */
 
 async function cargarResenas() {
@@ -15,10 +24,11 @@ async function cargarResenas() {
 
   try {
     const data = await resenasAPI.getAll(params);
-    const resenas = Array.isArray(data) ? data : (data.resenas || []);
-    renderTablaResenas(resenas);
+    resenasData = Array.isArray(data) ? data : (data.resenas || []);
+    renderTablaResenas(resenasData);
   } catch (err) {
     showToast(`Error al cargar reseñas: ${err.message}`, 'error');
+    resenasData = [];
     renderTablaResenas([]);
   } finally {
     hideLoader('resenas-loader');
@@ -45,8 +55,8 @@ function renderTablaResenas(resenas) {
       <td style="color:var(--text-muted)">${formatDate(r.fecha)}</td>
       <td>
         <div class="td-actions">
-          <button class="btn btn-sm btn-secondary" onclick="abrirEditarResena('${r._id}')">Editar</button>
-          <button class="btn btn-sm btn-danger"    onclick="eliminarResena('${r._id}')">Eliminar</button>
+          <button class="btn btn-sm btn-secondary" onclick="abrirEditarResena('${r.resena_id}')">Editar</button>
+          <button class="btn btn-sm btn-danger"    onclick="eliminarResena('${r.resena_id}')">Eliminar</button>
         </div>
       </td>
     </tr>
@@ -119,15 +129,15 @@ async function buildFormResenaHTML(r = {}) {
   } catch (_) {}
 
   const optUsuarios = usuarios.map(u =>
-    `<option value="${u._id}" ${r.usuario_id === u._id ? 'selected' : ''}>${u.nombre} (${u.correo})</option>`
+    `<option value="${u.usuario_id}" ${r.usuario_id === u.usuario_id ? 'selected' : ''}>${u.nombre} (${u.correo})</option>`
   ).join('');
 
   const optLibros = libros.map(l =>
-    `<option value="${l._id}" ${r.libro_id === l._id ? 'selected' : ''}>${l.titulo}</option>`
+    `<option value="${l.libro_id}" ${r.libro_id === l.libro_id ? 'selected' : ''}>${l.titulo}</option>`
   ).join('');
 
   // Solo mostrar los selects al crear (no al editar)
-  const isEdit = !!r._id;
+  const isEdit = !!r.resena_id;
   const selectsHTML = isEdit ? '' : `
     <div class="form-group">
       <label class="form-label" for="r-usuario">Usuario *</label>

@@ -2,6 +2,15 @@
  * autores.js — CRUD completo para la colección 'autores'.
  */
 
+/* ── Estado local ─────────────────────────────────────────────────── */
+let autoresData = [];
+let sortStateAutores = { field: null, dir: 'asc' };
+
+function ordenarAutores(field) {
+  toggleSort(sortStateAutores, field, autoresData, renderTablaAutores);
+  actualizarIndicadores('#autores-table th[data-field]', sortStateAutores);
+}
+
 /* ── Cargar y renderizar ──────────────────────────────────────────── */
 
 async function cargarAutores() {
@@ -14,10 +23,11 @@ async function cargarAutores() {
 
   try {
     const data = await autoresAPI.getAll(params);
-    const autores = Array.isArray(data) ? data : (data.autores || []);
-    renderTablaAutores(autores);
+    autoresData = Array.isArray(data) ? data : (data.autores || []);
+    renderTablaAutores(autoresData);
   } catch (err) {
     showToast(`Error al cargar autores: ${err.message}`, 'error');
+    autoresData = [];
     renderTablaAutores([]);
   } finally {
     hideLoader('autores-loader');
@@ -36,19 +46,19 @@ function renderTablaAutores(autores) {
 
   hideEmpty('autores-empty');
   tbody.innerHTML = autores.map(a => {
-    // obras y premios pueden ser arrays de strings
     const obras   = Array.isArray(a.obras)   ? a.obras.join(', ')   : (a.obras   || '—');
     const premios = Array.isArray(a.premios) ? a.premios.join(', ') : (a.premios || '—');
     return `
       <tr>
+        <td><code style="font-size:0.75rem;color:var(--text-muted)">${a.autor_id || '—'}</code></td>
         <td><strong>${a.nombre || '—'}</strong></td>
         <td>${a.nacionalidad || '—'}</td>
         <td class="td-truncate" title="${obras}">${truncate(obras, 50)}</td>
         <td class="td-truncate" title="${premios}">${truncate(premios, 50)}</td>
         <td>
           <div class="td-actions">
-            <button class="btn btn-sm btn-secondary" onclick="abrirEditarAutor('${a._id}')">Editar</button>
-            <button class="btn btn-sm btn-danger"    onclick="eliminarAutor('${a._id}', '${(a.nombre||'').replace(/'/g,"\\'")}')">Eliminar</button>
+            <button class="btn btn-sm btn-secondary" onclick="abrirEditarAutor('${a.autor_id}')">Editar</button>
+            <button class="btn btn-sm btn-danger"    onclick="eliminarAutor('${a.autor_id}', '${(a.nombre||'').replace(/'/g,"\\'")}')">Eliminar</button>
           </div>
         </td>
       </tr>

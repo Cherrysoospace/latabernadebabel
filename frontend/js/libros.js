@@ -10,6 +10,12 @@
 
 /* ── Estado local ─────────────────────────────────────────────────── */
 let librosData = [];  // Cache de los libros actualmente mostrados
+let sortStateLibros = { field: null, dir: 'asc' };
+
+function ordenarLibros(field) {
+  toggleSort(sortStateLibros, field, librosData, renderTablaLibros);
+  actualizarIndicadores('#libros-table th[data-field]', sortStateLibros);
+}
 
 /* ── Cargar y renderizar ──────────────────────────────────────────── */
 
@@ -54,6 +60,7 @@ function renderTablaLibros(libros) {
   hideEmpty('libros-empty');
   tbody.innerHTML = libros.map(l => `
     <tr>
+      <td><code style="font-size:0.75rem;color:var(--text-muted)">${l.libro_id || '—'}</code></td>
       <td class="td-truncate" title="${l.titulo || ''}">${l.titulo || '—'}</td>
       <td>${l.autor || '—'}</td>
       <td>${l.genero ? `<span style="text-transform:capitalize">${l.genero}</span>` : '—'}</td>
@@ -62,13 +69,13 @@ function renderTablaLibros(libros) {
       <td>${disponibleBadge(l.disponible)}</td>
       <td>
         <div class="td-actions">
-          <button class="btn btn-sm btn-secondary" onclick="abrirEditarLibro('${l._id}')">Editar</button>
+          <button class="btn btn-sm btn-secondary" onclick="abrirEditarLibro('${l.libro_id}')">Editar</button>
           <button class="btn btn-sm ${l.disponible ? 'btn-warning' : 'btn-success'}"
-                  onclick="toggleDisponibilidad('${l._id}', ${l.disponible})"
+                  onclick="toggleDisponibilidad('${l.libro_id}', ${l.disponible})"
                   title="${l.disponible ? 'Marcar no disponible' : 'Marcar disponible'}">
             ${l.disponible ? 'No disp.' : 'Disp.'}
           </button>
-          <button class="btn btn-sm btn-danger" onclick="eliminarLibro('${l._id}', '${(l.titulo || '').replace(/'/g, "\\'")}')">Eliminar</button>
+          <button class="btn btn-sm btn-danger" onclick="eliminarLibro('${l.libro_id}', '${(l.titulo || '').replace(/'/g, "\\'")}')">Eliminar</button>
         </div>
       </td>
     </tr>

@@ -9,6 +9,7 @@ const ROUTES = {
   '/prestamos':{ sectionId: 'section-prestamos', navId: 'nav-prestamos', title: 'Préstamos', subtitle: 'Control de préstamos' },
   '/resenas':  { sectionId: 'section-resenas',   navId: 'nav-resenas',   title: 'Reseñas',   subtitle: 'Gestión de reseñas' },
   '/autores':  { sectionId: 'section-autores',   navId: 'nav-autores',   title: 'Autores',   subtitle: 'Gestión de autores' },
+  '/nosql':    { sectionId: 'section-nosql',     navId: 'nav-nosql',     title: 'Consultas NoSQL', subtitle: 'Ejecuta comandos mongosh directamente' },
 };
 
 // Sección por defecto al abrir la app

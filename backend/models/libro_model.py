@@ -1,18 +1,9 @@
-"""
-libro_model.py — Modelo de la colección 'libros'.
-
-Colección: libros
-Descripción: Representa un libro disponible en la biblioteca.
-"""
-
 from datetime import datetime, timezone
 from bson import ObjectId
 
 
-# Formatos válidos de libro
 FORMATOS_VALIDOS = {"fisico", "digital", "audiolibro"}
 
-# Géneros válidos (ampliable)
 GENEROS_VALIDOS = {
     "ficcion", "no ficcion", "ciencia ficcion", "fantasia", "terror",
     "romance", "misterio", "thriller", "biografia", "historia",
@@ -20,7 +11,6 @@ GENEROS_VALIDOS = {
     "juvenil", "autoayuda", "arte", "economia", "derecho", "otro"
 }
 
-# Idiomas admitidos (código ISO 639-1)
 IDIOMAS_VALIDOS = {
     "es": "Español",
     "en": "Inglés",
@@ -36,21 +26,6 @@ IDIOMAS_VALIDOS = {
 
 
 class Libro:
-    """
-    Modelo para la colección 'libros'.
-
-    Campos:
-        titulo      (str)      — Título del libro                  [requerido]
-        autor       (str)      — Nombre del autor                  [requerido]
-        genero      (str)      — Género literario                   [requerido]
-        editorial   (str)      — Casa editorial                     [opcional]
-        anio        (int)      — Año de publicación (≥ 1000)        [opcional]
-        idioma      (str)      — Código ISO 639-1 del idioma        [opcional]
-        formato     (str)      — 'fisico' | 'digital' | 'audiolibro' [opcional]
-        descripcion (str)      — Sinopsis o descripción del libro   [opcional]
-        fecha_registro (datetime) — Fecha de ingreso al catálogo   [auto]
-        disponible  (bool)     — Si el libro está disponible        [auto=True]
-    """
 
     COLECCION = "libros"
 
@@ -65,9 +40,11 @@ class Libro:
         formato: str = "fisico",
         descripcion: str = None,
         disponible: bool = True,
+        libro_id: str = None,
         _id=None,
     ):
         self._id = _id or ObjectId()
+        self.libro_id = libro_id
         self.titulo = titulo.strip()
         self.autor = autor.strip()
         self.genero = genero.strip().lower()
@@ -79,15 +56,8 @@ class Libro:
         self.disponible = disponible
         self.fecha_registro = datetime.now(timezone.utc)
 
-    # ─── Validación ───────────────────────────────────────────────────────────
-
     def validar(self) -> list[str]:
-        """
-        Valida los campos del modelo.
-        Retorna una lista de errores (vacía si todo es válido).
-        """
         errores = []
-
         if not self.titulo:
             errores.append("El campo 'titulo' es requerido.")
         if not self.autor:
@@ -96,28 +66,25 @@ class Libro:
             errores.append("El campo 'genero' es requerido.")
         if self.genero and self.genero not in GENEROS_VALIDOS:
             errores.append(
-                f"Género '{self.genero}' no válido. Opciones: {sorted(GENEROS_VALIDOS)}"
+                f"Genero '{self.genero}' no valido. Opciones: {sorted(GENEROS_VALIDOS)}"
             )
         if self.anio is not None:
             if not isinstance(self.anio, int) or self.anio < 1000 or self.anio > datetime.now().year + 1:
-                errores.append(f"El año debe ser un entero entre 1000 y {datetime.now().year + 1}.")
+                errores.append(f"El anio debe ser un entero entre 1000 y {datetime.now().year + 1}.")
         if self.idioma and self.idioma not in IDIOMAS_VALIDOS:
             errores.append(
-                f"Idioma '{self.idioma}' no válido. Opciones: {list(IDIOMAS_VALIDOS.keys())}"
+                f"Idioma '{self.idioma}' no valido. Opciones: {list(IDIOMAS_VALIDOS.keys())}"
             )
         if self.formato and self.formato not in FORMATOS_VALIDOS:
             errores.append(
-                f"Formato '{self.formato}' no válido. Opciones: {sorted(FORMATOS_VALIDOS)}"
+                f"Formato '{self.formato}' no valido. Opciones: {sorted(FORMATOS_VALIDOS)}"
             )
-
         return errores
 
-    # ─── Serialización ────────────────────────────────────────────────────────
-
     def to_dict(self) -> dict:
-        """Convierte el modelo a un diccionario listo para insertar en MongoDB."""
         return {
             "_id": self._id,
+            "libro_id": self.libro_id,
             "titulo": self.titulo,
             "autor": self.autor,
             "genero": self.genero,
@@ -132,7 +99,6 @@ class Libro:
 
     @classmethod
     def from_dict(cls, data: dict) -> "Libro":
-        """Crea un objeto Libro a partir de un diccionario (p. ej., desde MongoDB)."""
         return cls(
             titulo=data.get("titulo", ""),
             autor=data.get("autor", ""),
@@ -143,6 +109,7 @@ class Libro:
             formato=data.get("formato", "fisico"),
             descripcion=data.get("descripcion"),
             disponible=data.get("disponible", True),
+            libro_id=data.get("libro_id"),
             _id=data.get("_id"),
         )
 

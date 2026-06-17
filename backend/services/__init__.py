@@ -8,6 +8,7 @@ from .usuario_service import UsuarioService
 from .prestamo_service import PrestamoService
 from .resena_service import ResenaService
 from .autor_service import AutorService
+from .nosql_service import NoSqlService
 
 __all__ = [
     "LibroService",
@@ -15,4 +16,5 @@ __all__ = [
     "PrestamoService",
     "ResenaService",
     "AutorService",
+    "NoSqlService",
 ]

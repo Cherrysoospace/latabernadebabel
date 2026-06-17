@@ -3,6 +3,15 @@
  * Incluye el botón "Devolver" que cambia el estado y libera el libro.
  */
 
+/* ── Estado local ─────────────────────────────────────────────────── */
+let prestamosData = [];
+let sortStatePrestamos = { field: null, dir: 'asc' };
+
+function ordenarPrestamos(field) {
+  toggleSort(sortStatePrestamos, field, prestamosData, renderTablaPrestamos);
+  actualizarIndicadores('#prestamos-table th[data-field]', sortStatePrestamos);
+}
+
 /* ── Cargar y renderizar ──────────────────────────────────────────── */
 
 async function cargarPrestamos() {
@@ -15,10 +24,11 @@ async function cargarPrestamos() {
 
   try {
     const data = await prestamosAPI.getAll(params);
-    const prestamos = Array.isArray(data) ? data : (data.prestamos || []);
-    renderTablaPrestamos(prestamos);
+    prestamosData = Array.isArray(data) ? data : (data.prestamos || []);
+    renderTablaPrestamos(prestamosData);
   } catch (err) {
     showToast(`Error al cargar préstamos: ${err.message}`, 'error');
+    prestamosData = [];
     renderTablaPrestamos([]);
   } finally {
     hideLoader('prestamos-loader');
@@ -38,7 +48,7 @@ function renderTablaPrestamos(prestamos) {
   hideEmpty('prestamos-empty');
   tbody.innerHTML = prestamos.map(p => `
     <tr>
-      <td>${shortId(p._id)}</td>
+      <td>${shortId(p.prestamo_id)}</td>
       <td>${shortId(p.usuario_id)}</td>
       <td>${shortId(p.libro_id)}</td>
       <td style="color:var(--text-secondary)">${formatDate(p.fecha_inicio)}</td>
@@ -47,9 +57,9 @@ function renderTablaPrestamos(prestamos) {
       <td>
         <div class="td-actions">
           ${p.estado === 'activo' || p.estado === 'vencido'
-            ? `<button class="btn btn-sm btn-success" onclick="devolverPrestamo('${p._id}')">Devolver</button>`
+            ? `<button class="btn btn-sm btn-success" onclick="devolverPrestamo('${p.prestamo_id}')">Devolver</button>`
             : ''}
-          <button class="btn btn-sm btn-danger" onclick="eliminarPrestamo('${p._id}')">Eliminar</button>
+          <button class="btn btn-sm btn-danger" onclick="eliminarPrestamo('${p.prestamo_id}')">Eliminar</button>
         </div>
       </td>
     </tr>
@@ -77,7 +87,7 @@ async function devolverPrestamo(id) {
 
 function eliminarPrestamo(id) {
   confirmAction(
-    `¿Eliminar el préstamo con ID "${id.slice(0,8)}…"?`,
+    `¿Eliminar el préstamo con ID "${id}"?`,
     async () => {
       try {
         await prestamosAPI.delete(id);
@@ -113,11 +123,11 @@ async function buildFormPrestamoHTML() {
   }
 
   const optUsuarios = usuarios.length
-    ? usuarios.map(u => `<option value="${u._id}">${u.nombre} (${u.correo})</option>`).join('')
+    ? usuarios.map(u => `<option value="${u.usuario_id}">${u.nombre} (${u.correo})</option>`).join('')
     : '<option value="">— No hay usuarios activos —</option>';
 
   const optLibros = libros.length
-    ? libros.map(l => `<option value="${l._id}">${l.titulo} — ${l.autor}</option>`).join('')
+    ? libros.map(l => `<option value="${l.libro_id}">${l.titulo} — ${l.autor}</option>`).join('')
     : '<option value="">— No hay libros disponibles —</option>';
 
   return `

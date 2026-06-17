@@ -2,6 +2,15 @@
  * usuarios.js — CRUD completo para la colección 'usuarios'.
  */
 
+/* ── Estado local ─────────────────────────────────────────────────── */
+let usuariosData = [];
+let sortStateUsuarios = { field: null, dir: 'asc' };
+
+function ordenarUsuarios(field) {
+  toggleSort(sortStateUsuarios, field, usuariosData, renderTablaUsuarios);
+  actualizarIndicadores('#usuarios-table th[data-field]', sortStateUsuarios);
+}
+
 /* ── Cargar y renderizar ──────────────────────────────────────────── */
 
 async function cargarUsuarios() {
@@ -17,10 +26,11 @@ async function cargarUsuarios() {
 
   try {
     const data = await usuariosAPI.getAll(params);
-    const usuarios = Array.isArray(data) ? data : (data.usuarios || []);
-    renderTablaUsuarios(usuarios);
+    usuariosData = Array.isArray(data) ? data : (data.usuarios || []);
+    renderTablaUsuarios(usuariosData);
   } catch (err) {
     showToast(`Error al cargar usuarios: ${err.message}`, 'error');
+    usuariosData = [];
     renderTablaUsuarios([]);
   } finally {
     hideLoader('usuarios-loader');
@@ -40,6 +50,7 @@ function renderTablaUsuarios(usuarios) {
   hideEmpty('usuarios-empty');
   tbody.innerHTML = usuarios.map(u => `
     <tr>
+      <td><code style="font-size:0.75rem;color:var(--text-muted)">${u.usuario_id || '—'}</code></td>
       <td>${u.nombre || '—'}</td>
       <td style="color:var(--text-secondary);font-size:0.82rem">${u.correo || '—'}</td>
       <td>${membresiaBadge(u.membresia)}</td>
@@ -47,11 +58,11 @@ function renderTablaUsuarios(usuarios) {
       <td style="color:var(--text-muted)">${formatDate(u.fecha_registro)}</td>
       <td>
         <div class="td-actions">
-          <button class="btn btn-sm btn-secondary" onclick="abrirEditarUsuario('${u._id}')">Editar</button>
+          <button class="btn btn-sm btn-secondary" onclick="abrirEditarUsuario('${u.usuario_id}')">Editar</button>
           ${u.activo
-            ? `<button class="btn btn-sm btn-warning" onclick="desactivarUsuario('${u._id}', '${(u.nombre||'').replace(/'/g,"\\'")}')">Desactivar</button>`
+            ? `<button class="btn btn-sm btn-warning" onclick="desactivarUsuario('${u.usuario_id}', '${(u.nombre||'').replace(/'/g,"\\'")}')">Desactivar</button>`
             : ''}
-          <button class="btn btn-sm btn-danger" onclick="eliminarUsuario('${u._id}', '${(u.nombre||'').replace(/'/g,"\\'")}')">Eliminar</button>
+          <button class="btn btn-sm btn-danger" onclick="eliminarUsuario('${u.usuario_id}', '${(u.nombre||'').replace(/'/g,"\\'")}')">Eliminar</button>
         </div>
       </td>
     </tr>
