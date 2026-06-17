@@ -221,11 +221,15 @@ function shortId(id) {
 /**
  * Ordena un array de objetos por un campo, con soporte para strings y números.
  */
+function resolveField(obj, path) {
+  return path.split('.').reduce((acc, key) => acc?.[key], obj);
+}
+
 function sortData(data, field, dir) {
   const sorted = [...data];
   sorted.sort((a, b) => {
-    const va = a[field];
-    const vb = b[field];
+    const va = resolveField(a, field);
+    const vb = resolveField(b, field);
     if (va == null) return 1;
     if (vb == null) return -1;
     let cmp;

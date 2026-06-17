@@ -62,7 +62,7 @@ def obtener_libros():
     # Listado paginado general
     try:
         skip = int(request.args.get("skip", 0))
-        limit = int(request.args.get("limit", 20))
+        limit = int(request.args.get("limit", 100))
     except ValueError:
         return jsonify({"error": "Los parámetros 'skip' y 'limit' deben ser enteros."}), 400
 

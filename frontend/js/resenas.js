@@ -20,7 +20,7 @@ async function cargarResenas() {
 
   const params = {};
   const minCal = document.getElementById('resenas-filter-calificacion')?.value;
-  if (minCal) params.min_calificacion = minCal;
+  if (minCal) params.calificacion_min = minCal;
 
   try {
     const data = await resenasAPI.getAll(params);
@@ -48,8 +48,9 @@ function renderTablaResenas(resenas) {
   hideEmpty('resenas-empty');
   tbody.innerHTML = resenas.map(r => `
     <tr>
-      <td>${shortId(r.usuario_id)}</td>
-      <td>${shortId(r.libro_id)}</td>
+      <td><code style="font-size:0.75rem">${r.resena_id || '—'}</code></td>
+      <td>${r.usuario ? `${r.usuario.nombre} ${shortId(r.usuario.usuario_id)}` : '—'}</td>
+      <td>${r.libro ? `${r.libro.titulo} ${shortId(r.libro.libro_id)}` : '—'}</td>
       <td>${starsHTML(r.calificacion)}</td>
       <td class="td-truncate" title="${(r.comentario || '').replace(/"/g, '&quot;')}">${truncate(r.comentario, 55)}</td>
       <td style="color:var(--text-muted)">${formatDate(r.fecha)}</td>

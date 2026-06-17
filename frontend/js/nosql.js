@@ -132,8 +132,8 @@ function renderizarResultado(data) {
 
   if (data.tipo === 'cursor') {
     const resumen = `<div class="nosql-result-count">${data.total} documento${data.total !== 1 ? 's' : ''} encontrado${data.total !== 1 ? 's' : ''}</div>`;
-    const tabla = data.total > 0 ? generarTabla(data.resultado) : '';
-    return resumen + tabla;
+    const json = data.total > 0 ? `<pre class="nosql-result-json">${data.resultado.map(doc => syntaxHighlight(doc)).join('\n\n')}</pre>` : '';
+    return resumen + json;
   }
 
   if (data.tipo === 'document') {
@@ -170,38 +170,6 @@ function renderizarResultado(data) {
   }
 
   return `<pre class="nosql-result-json">${syntaxHighlight(data.resultado)}</pre>`;
-}
-
-/* ── Tabla genérica para resultados de cursor ────────────────────────── */
-function generarTabla(docs) {
-  if (!docs || docs.length === 0) return '';
-  const keys = Object.keys(docs[0]);
-  const rows = docs.map(doc => {
-    const cells = keys.map(k => {
-      const val = doc[k];
-      return `<td>${formatearCelda(val)}</td>`;
-    }).join('');
-    return `<tr>${cells}</tr>`;
-  }).join('');
-
-  return `
-    <div class="table-wrapper nosql-table-wrapper">
-      <table class="data-table nosql-table">
-        <thead><tr>${keys.map(k => `<th>${escapeHtml(k)}</th>`).join('')}</tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-  `;
-}
-
-function formatearCelda(val) {
-  if (val === null || val === undefined) return '<span class="nosql-cell-null">null</span>';
-  if (typeof val === 'boolean') return val ? 'true' : 'false';
-  if (typeof val === 'object') {
-    if (val instanceof Array) return `<code>Array(${val.length})</code>`;
-    return `<code>${escapeHtml(JSON.stringify(val).slice(0, 80))}${JSON.stringify(val).length > 80 ? '…' : ''}</code>`;
-  }
-  return escapeHtml(String(val));
 }
 
 /* ── Ejemplos ────────────────────────────────────────────────────────── */

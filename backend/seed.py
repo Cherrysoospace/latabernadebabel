@@ -70,56 +70,62 @@ def poblar():
     # 2. LIBROS (LIB-0001 al LIB-0025)
     # ══════════════════════════════════════════════════════════════════
     print("\nInsertando libros...")
+
+    AUTORES = {
+        a.nombre: {"autor_id": a.autor_id, "name": a.nombre, "nacionalidad": a.nacionalidad}
+        for a in autores_data
+    }
+
     libros_data = [
-        Libro("Cien anos de soledad", "Gabriel Garcia Marquez", "ficcion",
+        Libro("Cien anos de soledad", AUTORES["Gabriel Garcia Marquez"], "ficcion",
               "Editorial Sudamericana", 1967, "es", "fisico", "La historia de la familia Buendia en Macondo.", libro_id="LIB-0001"),
-        Libro("El amor en los tiempos del colera", "Gabriel Garcia Marquez", "romance",
+        Libro("El amor en los tiempos del colera", AUTORES["Gabriel Garcia Marquez"], "romance",
               "Oveja Negra", 1985, "es", "fisico", "Un amor que espera mas de medio siglo.", libro_id="LIB-0002"),
-        Libro("Orgullo y prejuicio", "Jane Austen", "romance",
+        Libro("Orgullo y prejuicio", AUTORES["Jane Austen"], "romance",
               "Thomas Egerton", 1813, "en", "fisico", "Elizabeth Bennet y el senor Darcy en la Inglaterra rural.", libro_id="LIB-0003"),
-        Libro("Sentido y sensibilidad", "Jane Austen", "romance",
+        Libro("Sentido y sensibilidad", AUTORES["Jane Austen"], "romance",
               "Thomas Egerton", 1811, "en", "digital", "Las hermanas Dashwood y el amor.", libro_id="LIB-0004"),
-        Libro("Fundacion", "Isaac Asimov", "ciencia ficcion",
+        Libro("Fundacion", AUTORES["Isaac Asimov"], "ciencia ficcion",
               "Gnome Press", 1951, "en", "fisico", "El imperio galactico y la psicohistoria.", libro_id="LIB-0005"),
-        Libro("Yo, robot", "Isaac Asimov", "ciencia ficcion",
+        Libro("Yo, robot", AUTORES["Isaac Asimov"], "ciencia ficcion",
               "Gnome Press", 1950, "en", "digital", "Las tres leyes de la robotica en accion.", libro_id="LIB-0006"),
-        Libro("La casa de los espiritus", "Isabel Allende", "ficcion",
+        Libro("La casa de los espiritus", AUTORES["Isabel Allende"], "ficcion",
               "Plaza & Janes", 1982, "es", "fisico", "La saga de la familia Trueba.", libro_id="LIB-0007"),
-        Libro("El hobbit", "J.R.R. Tolkien", "fantasia",
+        Libro("El hobbit", AUTORES["J.R.R. Tolkien"], "fantasia",
               "George Allen & Unwin", 1937, "en", "fisico", "Bilbo Bolson y el tesoro del dragon Smaug.", libro_id="LIB-0008"),
-        Libro("El senor de los anillos", "J.R.R. Tolkien", "fantasia",
+        Libro("El senor de los anillos", AUTORES["J.R.R. Tolkien"], "fantasia",
               "George Allen & Unwin", 1954, "en", "fisico", "La comunidad del anillo en la Tierra Media.", libro_id="LIB-0009"),
-        Libro("1984", "George Orwell", "ciencia ficcion",
+        Libro("1984", AUTORES["George Orwell"], "ciencia ficcion",
               "Secker & Warburg", 1949, "en", "fisico", "El Gran Hermano te observa en Oceania.", libro_id="LIB-0010"),
-        Libro("Rebelion en la granja", "George Orwell", "ficcion",
+        Libro("Rebelion en la granja", AUTORES["George Orwell"], "ficcion",
               "Secker & Warburg", 1945, "en", "digital", "Los animales se rebelan contra el granjero Jones.", libro_id="LIB-0011"),
-        Libro("Desolacion", "Gabriela Mistral", "poesia",
+        Libro("Desolacion", AUTORES["Gabriela Mistral"], "poesia",
               "Instituto de las Espanas", 1922, "es", "fisico", "Primer gran poemario de Gabriela Mistral.", libro_id="LIB-0012"),
-        Libro("Veinte mil leguas de viaje submarino", "Julio Verne", "ciencia ficcion",
+        Libro("Veinte mil leguas de viaje submarino", AUTORES["Julio Verne"], "ciencia ficcion",
               "Pierre-Jules Hetzel", 1870, "fr", "digital", "El capitan Nemo y el Nautilus.", libro_id="LIB-0013"),
-        Libro("Viaje al centro de la Tierra", "Julio Verne", "ciencia ficcion",
+        Libro("Viaje al centro de la Tierra", AUTORES["Julio Verne"], "ciencia ficcion",
               "Pierre-Jules Hetzel", 1864, "fr", "fisico", "El profesor Lidenbrock y su expedicion.", libro_id="LIB-0014"),
-        Libro("Como agua para chocolate", "Laura Esquivel", "romance",
+        Libro("Como agua para chocolate", AUTORES["Laura Esquivel"], "romance",
               "Planeta", 1989, "es", "fisico", "Tita y su cocina magica en la Revolucion Mexicana.", libro_id="LIB-0015"),
-        Libro("El cuervo y otros poemas", "Edgar Allan Poe", "poesia",
+        Libro("El cuervo y otros poemas", AUTORES["Edgar Allan Poe"], "poesia",
               "Wiley & Putnam", 1845, "en", "digital", "Poemas oscuros del maestro del terror.", libro_id="LIB-0016"),
-        Libro("Los crimenes de la calle Morgue", "Edgar Allan Poe", "misterio",
+        Libro("Los crimenes de la calle Morgue", AUTORES["Edgar Allan Poe"], "misterio",
               "Graham's Magazine", 1841, "en", "fisico", "El primer relato de detectives moderno.", libro_id="LIB-0017"),
-        Libro("El fin de la eternidad", "Isaac Asimov", "ciencia ficcion",
+        Libro("El fin de la eternidad", AUTORES["Isaac Asimov"], "ciencia ficcion",
               "Doubleday", 1955, "en", "digital", "El manipulador del tiempo y sus dilemas.", libro_id="LIB-0018"),
-        Libro("Emma", "Jane Austen", "romance",
+        Libro("Emma", AUTORES["Jane Austen"], "romance",
               "John Murray", 1815, "en", "fisico", "Emma Woodhouse, una casamentera en apuros.", libro_id="LIB-0019"),
-        Libro("Cronica de una muerte anunciada", "Gabriel Garcia Marquez", "misterio",
+        Libro("Cronica de una muerte anunciada", AUTORES["Gabriel Garcia Marquez"], "misterio",
               "La Oveja Negra", 1981, "es", "fisico", "Un asesinato que todos sabian que ocurriria.", libro_id="LIB-0020"),
-        Libro("Eva Luna", "Isabel Allende", "ficcion",
+        Libro("Eva Luna", AUTORES["Isabel Allende"], "ficcion",
               "Plaza & Janes", 1987, "es", "digital", "Eva Luna cuenta su historia de amor y libertad.", libro_id="LIB-0021"),
-        Libro("El Silmarillion", "J.R.R. Tolkien", "fantasia",
+        Libro("El Silmarillion", AUTORES["J.R.R. Tolkien"], "fantasia",
               "George Allen & Unwin", 1977, "en", "fisico", "La mitologia completa de la Tierra Media.", libro_id="LIB-0022"),
-        Libro("La vuelta al mundo en 80 dias", "Julio Verne", "ficcion",
+        Libro("La vuelta al mundo en 80 dias", AUTORES["Julio Verne"], "ficcion",
               "Pierre-Jules Hetzel", 1872, "fr", "fisico", "Phileas Fogg y su apuesta alrededor del mundo.", libro_id="LIB-0023"),
-        Libro("Persuasion", "Jane Austen", "romance",
+        Libro("Persuasion", AUTORES["Jane Austen"], "romance",
               "John Murray", 1817, "en", "digital", "Anne Elliot y el capitan Wentworth.", libro_id="LIB-0024"),
-        Libro("Tala", "Gabriela Mistral", "poesia",
+        Libro("Tala", AUTORES["Gabriela Mistral"], "poesia",
               "Editorial Sur", 1938, "es", "fisico", "Poemario que consolida su voz lirica.", libro_id="LIB-0025"),
     ]
 
@@ -188,6 +194,9 @@ def poblar():
         ("USR-0008", "LIB-0017", "devuelto", -3, -17),
     ]
 
+    user_map = {u.usuario_id: u for u in usuarios_data}
+    libro_map = {l.libro_id: l for l in libros_data}
+
     libros_no_disponibles = set()
 
     for i, (uid, lid, estado, dias_offset, dev_dias_offset) in enumerate(prestamos_config):
@@ -206,8 +215,19 @@ def poblar():
             inicio = now
             fin = inicio + timedelta(days=duracion)
 
+        usuario_ref = {
+            "usuario_id": uid,
+            "nombre": user_map[uid].nombre,
+            "correo": user_map[uid].correo,
+        }
+        libro_ref = {
+            "libro_id": lid,
+            "titulo": libro_map[lid].titulo,
+            "autor": libro_map[lid].autor,
+        }
+
         prestamo = Prestamo(
-            usuario_id=uid, libro_id=lid,
+            usuario=usuario_ref, libro=libro_ref,
             fecha_inicio=inicio, fecha_fin=fin,
             estado=estado, prestamo_id=prestamo_id,
         )
@@ -267,8 +287,17 @@ def poblar():
 
     for i, (uid, lid, cal, com) in enumerate(resenas_config):
         resena_id = f"RES-{i + 1:04d}"
+        usuario_ref = {
+            "usuario_id": uid,
+            "nombre": user_map[uid].nombre,
+            "correo": user_map[uid].correo,
+        }
+        libro_ref = {
+            "libro_id": lid,
+            "titulo": libro_map[lid].titulo,
+        }
         resena = Resena(
-            usuario_id=uid, libro_id=lid,
+            usuario=usuario_ref, libro=libro_ref,
             calificacion=cal, comentario=com,
             resena_id=resena_id,
         )
@@ -278,6 +307,29 @@ def poblar():
         db.resenas.insert_one(resena.to_dict())
 
     print(f"  OK {len(resenas_config)} resenas insertadas.")
+
+    # Calcular estadisticas de resenas por libro
+    from collections import defaultdict
+    stats = defaultdict(lambda: {"suma": 0, "total": 0})
+    for _, lid, cal, _ in resenas_config:
+        stats[lid]["suma"] += cal
+        stats[lid]["total"] += 1
+
+    for libro in libros_data:
+        s = stats.get(libro.libro_id)
+        if s and s["total"] > 0:
+            libro.estadisticas = {
+                "promedioCalificacion": round(s["suma"] / s["total"], 1),
+                "totalResenas": s["total"]
+            }
+        else:
+            libro.estadisticas = {"promedioCalificacion": 0, "totalResenas": 0}
+        db.libros.update_one(
+            {"libro_id": libro.libro_id},
+            {"$set": {"estadisticas": libro.estadisticas}}
+        )
+
+    print("  OK estadisticas de libros actualizadas.")
 
     db.counters.insert_many([
         {"_id": "autores", "seq": 10},

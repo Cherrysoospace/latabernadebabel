@@ -11,8 +11,8 @@ class Resena:
 
     def __init__(
         self,
-        usuario_id: str,
-        libro_id: str,
+        usuario: dict,
+        libro: dict,
         calificacion: int,
         comentario: str = None,
         fecha: datetime = None,
@@ -23,8 +23,8 @@ class Resena:
     ):
         self._id = _id or ObjectId()
         self.resena_id = resena_id
-        self.usuario_id = usuario_id
-        self.libro_id = libro_id
+        self.usuario = usuario
+        self.libro = libro
         self.calificacion = int(calificacion) if calificacion is not None else None
         self.comentario = comentario.strip() if comentario else None
         self.fecha = fecha or datetime.now(timezone.utc)
@@ -41,10 +41,10 @@ class Resena:
 
     def validar(self) -> list[str]:
         errores = []
-        if not self.usuario_id:
-            errores.append("El campo 'usuario_id' es requerido.")
-        if not self.libro_id:
-            errores.append("El campo 'libro_id' es requerido.")
+        if not isinstance(self.usuario, dict) or not self.usuario.get("usuario_id"):
+            errores.append("El campo 'usuario' debe ser un objeto con 'usuario_id'.")
+        if not isinstance(self.libro, dict) or not self.libro.get("libro_id"):
+            errores.append("El campo 'libro' debe ser un objeto con 'libro_id'.")
         if self.calificacion is None:
             errores.append("El campo 'calificacion' es requerido.")
         elif not isinstance(self.calificacion, int) or not (
@@ -64,8 +64,8 @@ class Resena:
         return {
             "_id": self._id,
             "resena_id": self.resena_id,
-            "usuario_id": self.usuario_id,
-            "libro_id": self.libro_id,
+            "usuario": self.usuario,
+            "libro": self.libro,
             "calificacion": self.calificacion,
             "comentario": self.comentario,
             "fecha": self.fecha,
@@ -76,8 +76,8 @@ class Resena:
     @classmethod
     def from_dict(cls, data: dict) -> "Resena":
         return cls(
-            usuario_id=data.get("usuario_id"),
-            libro_id=data.get("libro_id"),
+            usuario=data.get("usuario", {}),
+            libro=data.get("libro", {}),
             calificacion=data.get("calificacion"),
             comentario=data.get("comentario"),
             fecha=data.get("fecha"),
@@ -89,6 +89,7 @@ class Resena:
 
     def __repr__(self):
         return (
-            f"<Resena: libro={self.libro_id} usuario={self.usuario_id} "
+            f"<Resena: libro={self.libro.get('libro_id')} "
+            f"usuario={self.usuario.get('usuario_id')} "
             f"calificacion={self.calificacion}/5>"
         )

@@ -234,8 +234,8 @@
           <thead>
             <tr>
               <th onclick="ordenarPrestamos('prestamo_id')" data-field="prestamo_id" class="sortable">ID Préstamo<span class="sort-arrow"></span></th>
-              <th onclick="ordenarPrestamos('usuario_id')" data-field="usuario_id" class="sortable">Usuario ID<span class="sort-arrow"></span></th>
-              <th onclick="ordenarPrestamos('libro_id')" data-field="libro_id" class="sortable">Libro ID<span class="sort-arrow"></span></th>
+              <th onclick="ordenarPrestamos('usuario.nombre')" data-field="usuario.nombre" class="sortable">Usuario<span class="sort-arrow"></span></th>
+              <th onclick="ordenarPrestamos('libro.titulo')" data-field="libro.titulo" class="sortable">Libro<span class="sort-arrow"></span></th>
               <th onclick="ordenarPrestamos('fecha_inicio')" data-field="fecha_inicio" class="sortable">Fecha Inicio<span class="sort-arrow"></span></th>
               <th onclick="ordenarPrestamos('fecha_fin')" data-field="fecha_fin" class="sortable">Fecha Fin<span class="sort-arrow"></span></th>
               <th onclick="ordenarPrestamos('estado')" data-field="estado" class="sortable">Estado<span class="sort-arrow"></span></th>
@@ -273,8 +273,9 @@
         <table class="data-table" id="resenas-table">
           <thead>
             <tr>
-              <th onclick="ordenarResenas('usuario_id')" data-field="usuario_id" class="sortable">Usuario ID<span class="sort-arrow"></span></th>
-              <th onclick="ordenarResenas('libro_id')" data-field="libro_id" class="sortable">Libro ID<span class="sort-arrow"></span></th>
+              <th onclick="ordenarResenas('resena_id')" data-field="resena_id" class="sortable">Reseña ID<span class="sort-arrow"></span></th>
+              <th onclick="ordenarResenas('usuario.nombre')" data-field="usuario.nombre" class="sortable">Usuario<span class="sort-arrow"></span></th>
+              <th onclick="ordenarResenas('libro.titulo')" data-field="libro.titulo" class="sortable">Libro<span class="sort-arrow"></span></th>
               <th onclick="ordenarResenas('calificacion')" data-field="calificacion" class="sortable">Calificación<span class="sort-arrow"></span></th>
               <th onclick="ordenarResenas('comentario')" data-field="comentario" class="sortable">Comentario<span class="sort-arrow"></span></th>
               <th onclick="ordenarResenas('fecha')" data-field="fecha" class="sortable">Fecha<span class="sort-arrow"></span></th>

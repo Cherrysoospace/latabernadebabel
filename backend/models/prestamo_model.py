@@ -17,8 +17,8 @@ class Prestamo:
 
     def __init__(
         self,
-        usuario_id: str,
-        libro_id: str,
+        usuario: dict,
+        libro: dict,
         fecha_fin: datetime,
         fecha_inicio: datetime = None,
         estado: str = "activo",
@@ -28,8 +28,8 @@ class Prestamo:
     ):
         self._id = _id or ObjectId()
         self.prestamo_id = prestamo_id
-        self.usuario_id = usuario_id
-        self.libro_id = libro_id
+        self.usuario = usuario
+        self.libro = libro
         self.fecha_inicio = fecha_inicio or datetime.now(timezone.utc)
         self.fecha_fin = fecha_fin
         self.estado = estado.lower() if estado else "activo"
@@ -38,15 +38,15 @@ class Prestamo:
     @classmethod
     def crear_con_duracion(
         cls,
-        usuario_id: str,
-        libro_id: str,
+        usuario: dict,
+        libro: dict,
         dias: int = 14,
     ) -> "Prestamo":
         ahora = datetime.now(timezone.utc)
         fecha_fin = ahora + timedelta(days=dias)
         return cls(
-            usuario_id=usuario_id,
-            libro_id=libro_id,
+            usuario=usuario,
+            libro=libro,
             fecha_inicio=ahora,
             fecha_fin=fecha_fin,
         )
@@ -64,10 +64,10 @@ class Prestamo:
 
     def validar(self) -> list[str]:
         errores = []
-        if not self.usuario_id:
-            errores.append("El campo 'usuario_id' es requerido.")
-        if not self.libro_id:
-            errores.append("El campo 'libro_id' es requerido.")
+        if not isinstance(self.usuario, dict) or not self.usuario.get("usuario_id"):
+            errores.append("El campo 'usuario' debe ser un objeto con 'usuario_id'.")
+        if not isinstance(self.libro, dict) or not self.libro.get("libro_id"):
+            errores.append("El campo 'libro' debe ser un objeto con 'libro_id'.")
         if not self.fecha_fin:
             errores.append("El campo 'fecha_fin' es requerido.")
         elif isinstance(self.fecha_fin, datetime):
@@ -89,8 +89,8 @@ class Prestamo:
         return {
             "_id": self._id,
             "prestamo_id": self.prestamo_id,
-            "usuario_id": self.usuario_id,
-            "libro_id": self.libro_id,
+            "usuario": self.usuario,
+            "libro": self.libro,
             "fecha_inicio": self.fecha_inicio,
             "fecha_fin": self.fecha_fin,
             "estado": self.estado,
@@ -100,8 +100,8 @@ class Prestamo:
     @classmethod
     def from_dict(cls, data: dict) -> "Prestamo":
         return cls(
-            usuario_id=data.get("usuario_id"),
-            libro_id=data.get("libro_id"),
+            usuario=data.get("usuario", {}),
+            libro=data.get("libro", {}),
             fecha_inicio=data.get("fecha_inicio"),
             fecha_fin=data.get("fecha_fin"),
             estado=data.get("estado", "activo"),
@@ -112,6 +112,7 @@ class Prestamo:
 
     def __repr__(self):
         return (
-            f"<Prestamo: usuario={self.usuario_id} libro={self.libro_id} "
+            f"<Prestamo: usuario={self.usuario.get('usuario_id')} "
+            f"libro={self.libro.get('libro_id')} "
             f"estado={self.estado} vence={self.fecha_fin.date()}>"
         )

@@ -32,7 +32,7 @@ class Libro:
     def __init__(
         self,
         titulo: str,
-        autor: str,
+        autor: dict,
         genero: str,
         editorial: str = None,
         year: int = None,
@@ -40,13 +40,14 @@ class Libro:
         formato: str = "fisico",
         descripcion: str = None,
         disponible: bool = True,
+        estadisticas: dict = None,
         libro_id: str = None,
         _id=None,
     ):
         self._id = _id or ObjectId()
         self.libro_id = libro_id
         self.titulo = titulo.strip()
-        self.autor = autor.strip()
+        self.autor = autor
         self.genero = genero.strip().lower()
         self.editorial = editorial.strip() if editorial else None
         self.anio = year
@@ -54,14 +55,20 @@ class Libro:
         self.formato = formato.lower() if formato else "fisico"
         self.descripcion = descripcion.strip() if descripcion else None
         self.disponible = disponible
+        self.estadisticas = estadisticas or {"promedioCalificacion": 0, "totalResenas": 0}
         self.fecha_registro = datetime.now(timezone.utc)
 
     def validar(self) -> list[str]:
         errores = []
         if not self.titulo:
             errores.append("El campo 'titulo' es requerido.")
-        if not self.autor:
-            errores.append("El campo 'autor' es requerido.")
+        if not isinstance(self.autor, dict):
+            errores.append("El campo 'autor' debe ser un objeto con 'autor_id', 'name' y 'nacionalidad'.")
+        else:
+            if not self.autor.get("autor_id"):
+                errores.append("El campo 'autor.autor_id' es requerido.")
+            if not self.autor.get("name"):
+                errores.append("El campo 'autor.name' es requerido.")
         if not self.genero:
             errores.append("El campo 'genero' es requerido.")
         if self.genero and self.genero not in GENEROS_VALIDOS:
@@ -94,6 +101,7 @@ class Libro:
             "formato": self.formato,
             "descripcion": self.descripcion,
             "disponible": self.disponible,
+            "estadisticas": self.estadisticas,
             "fecha_registro": self.fecha_registro,
         }
 
@@ -101,7 +109,7 @@ class Libro:
     def from_dict(cls, data: dict) -> "Libro":
         return cls(
             titulo=data.get("titulo", ""),
-            autor=data.get("autor", ""),
+            autor=data.get("autor", {}),
             genero=data.get("genero", ""),
             editorial=data.get("editorial"),
             year=data.get("anio"),
@@ -109,9 +117,11 @@ class Libro:
             formato=data.get("formato", "fisico"),
             descripcion=data.get("descripcion"),
             disponible=data.get("disponible", True),
+            estadisticas=data.get("estadisticas"),
             libro_id=data.get("libro_id"),
             _id=data.get("_id"),
         )
 
     def __repr__(self):
-        return f"<Libro: '{self.titulo}' — {self.autor} ({self.anio})>"
+        nombre_autor = self.autor.get("name", str(self.autor)) if isinstance(self.autor, dict) else self.autor
+        return f"<Libro: '{self.titulo}' — {nombre_autor} ({self.anio})>"

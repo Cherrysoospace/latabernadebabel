@@ -49,8 +49,8 @@ function renderTablaPrestamos(prestamos) {
   tbody.innerHTML = prestamos.map(p => `
     <tr>
       <td>${shortId(p.prestamo_id)}</td>
-      <td>${shortId(p.usuario_id)}</td>
-      <td>${shortId(p.libro_id)}</td>
+      <td>${p.usuario ? `${p.usuario.nombre} ${shortId(p.usuario.usuario_id)}` : '—'}</td>
+      <td>${p.libro ? `${p.libro.titulo} ${shortId(p.libro.libro_id)}` : '—'}</td>
       <td style="color:var(--text-secondary)">${formatDate(p.fecha_inicio)}</td>
       <td style="color:var(--text-secondary)">${formatDate(p.fecha_fin)}</td>
       <td>${prestamoBadge(p.estado)}</td>
@@ -127,7 +127,7 @@ async function buildFormPrestamoHTML() {
     : '<option value="">— No hay usuarios activos —</option>';
 
   const optLibros = libros.length
-    ? libros.map(l => `<option value="${l.libro_id}">${l.titulo} — ${l.autor}</option>`).join('')
+    ? libros.map(l => `<option value="${l.libro_id}">${l.titulo} — ${l.autor?.name || l.autor || ''}</option>`).join('')
     : '<option value="">— No hay libros disponibles —</option>';
 
   return `

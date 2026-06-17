@@ -19,7 +19,7 @@ class LibroService:
     def crear(self, datos: dict) -> dict:
         libro = Libro(
             titulo=datos.get("titulo", ""),
-            autor=datos.get("autor", ""),
+            autor=datos.get("autor", {}),
             genero=datos.get("genero", ""),
             editorial=datos.get("editorial"),
             year=datos.get("anio"),
@@ -38,7 +38,7 @@ class LibroService:
         self.col.insert_one(doc)
         return _serializar(doc)
 
-    def obtener_todos(self, skip: int = 0, limit: int = 20) -> list[dict]:
+    def obtener_todos(self, skip: int = 0, limit: int = 100) -> list[dict]:
         docs = self.col.find({}, {"_id": 1, "libro_id": 1, "titulo": 1, "autor": 1,
                                    "genero": 1, "disponible": 1, "anio": 1})
         docs = docs.sort("fecha_registro", -1).skip(skip).limit(limit)
@@ -50,12 +50,11 @@ class LibroService:
 
     def buscar(self, termino: str) -> list[dict]:
         regex = {"$regex": termino, "$options": "i"}
-        docs = self.col.find({"$or": [{"titulo": regex}, {"autor": regex}]})
+        docs = self.col.find({"$or": [{"titulo": regex}, {"autor.name": regex}]})
         return [_serializar(d) for d in docs]
 
     def obtener_disponibles(self) -> list[dict]:
-        docs = self.col.find({"disponible": True},
-                              {"titulo": 1, "autor": 1, "genero": 1, "formato": 1, "libro_id": 1})
+        docs = self.col.find({"disponible": True})
         return [_serializar(d) for d in docs]
 
     def obtener_por_genero(self, genero: str) -> list[dict]:

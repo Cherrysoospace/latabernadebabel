@@ -26,24 +26,36 @@ class PrestamoService:
         usuario_id = datos.get("usuario_id", "")
         libro_id = datos.get("libro_id", "")
 
-        libro = self.col_libros.find_one({"libro_id": libro_id})
-        if not libro:
+        libro_doc = self.col_libros.find_one({"libro_id": libro_id})
+        if not libro_doc:
             raise ValueError("El libro especificado no existe.")
-        if not libro.get("disponible", False):
-            raise ValueError(f"El libro '{libro.get('titulo')}' no esta disponible.")
+        if not libro_doc.get("disponible", False):
+            raise ValueError(f"El libro '{libro_doc.get('titulo')}' no esta disponible.")
 
-        usuario = self.col_usuarios.find_one({"usuario_id": usuario_id})
-        if not usuario:
+        usuario_doc = self.col_usuarios.find_one({"usuario_id": usuario_id})
+        if not usuario_doc:
             raise ValueError("El usuario especificado no existe.")
-        if not usuario.get("activo", False):
+        if not usuario_doc.get("activo", False):
             raise ValueError("La cuenta del usuario no esta activa.")
 
-        membresia = usuario.get("membresia", "basica")
+        usuario = {
+            "usuario_id": usuario_doc["usuario_id"],
+            "nombre": usuario_doc["nombre"],
+            "correo": usuario_doc["correo"],
+        }
+
+        libro = {
+            "libro_id": libro_doc["libro_id"],
+            "titulo": libro_doc["titulo"],
+            "autor": libro_doc["autor"],
+        }
+
+        membresia = usuario_doc.get("membresia", "basica")
         dias = datos.get("dias") or DURACION_POR_MEMBRESIA.get(membresia, 14)
 
         prestamo = Prestamo.crear_con_duracion(
-            usuario_id=usuario_id,
-            libro_id=libro_id,
+            usuario=usuario,
+            libro=libro,
             dias=int(dias),
         )
 
@@ -73,7 +85,7 @@ class PrestamoService:
         return _serializar(doc) if doc else None
 
     def obtener_por_usuario(self, usuario_id: str) -> list[dict]:
-        docs = self.col.find({"usuario_id": usuario_id})
+        docs = self.col.find({"usuario.usuario_id": usuario_id})
         return [_serializar(d) for d in docs]
 
     def obtener_activos(self) -> list[dict]:
@@ -106,7 +118,7 @@ class PrestamoService:
         )
 
         self.col_libros.update_one(
-            {"libro_id": prestamo["libro_id"]},
+            {"libro_id": prestamo["libro"]["libro_id"]},
             {"$set": {"disponible": True}},
         )
 
@@ -138,7 +150,7 @@ class PrestamoService:
 
     def usuarios_con_mas_prestamos(self, top: int = 5) -> list[dict]:
         pipeline = [
-            {"$group": {"_id": "$usuario_id", "total_prestamos": {"$sum": 1}}},
+            {"$group": {"_id": "$usuario.usuario_id", "total_prestamos": {"$sum": 1}}},
             {"$sort": {"total_prestamos": -1}},
             {"$limit": top},
             {"$project": {"usuario_id": "$_id", "total_prestamos": 1, "_id": 0}},

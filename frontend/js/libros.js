@@ -62,7 +62,7 @@ function renderTablaLibros(libros) {
     <tr>
       <td><code style="font-size:0.75rem;color:var(--text-muted)">${l.libro_id || '—'}</code></td>
       <td class="td-truncate" title="${l.titulo || ''}">${l.titulo || '—'}</td>
-      <td>${l.autor || '—'}</td>
+      <td>${l.autor?.name || l.autor || '—'}</td>
       <td>${l.genero ? `<span style="text-transform:capitalize">${l.genero}</span>` : '—'}</td>
       <td>${l.anio || '—'}</td>
       <td>${(l.idioma || 'es').toUpperCase()}</td>
@@ -113,7 +113,28 @@ function eliminarLibro(id, titulo) {
 
 /* ── Formulario de crear/editar ───────────────────────────────────── */
 
-function formLibroHTML(libro = {}) {
+let autoresCache = [];
+
+async function cargarAutoresSelect() {
+  try {
+    const data = await autoresAPI.getAll({ limit: 200 });
+    autoresCache = Array.isArray(data) ? data : (data.autores || []);
+  } catch (_) {
+    autoresCache = [];
+  }
+}
+
+async function formLibroHTML(libro = {}) {
+  await cargarAutoresSelect();
+  const autorActual = libro.autor || {};
+  const autorIdActual = autorActual.autor_id || '';
+
+  const opcionesAutores = autoresCache.length
+    ? autoresCache.map(a =>
+        `<option value="${a.autor_id}" data-name="${a.nombre}" data-nacionalidad="${a.nacionalidad || ''}" ${a.autor_id === autorIdActual ? 'selected' : ''}>${a.nombre}${a.nacionalidad ? ` (${a.nacionalidad})` : ''}</option>`
+      ).join('')
+    : '<option value="">— No hay autores disponibles —</option>';
+
   return `
     <div class="form-row">
       <div class="form-group">
@@ -122,7 +143,10 @@ function formLibroHTML(libro = {}) {
       </div>
       <div class="form-group">
         <label class="form-label" for="f-autor">Autor *</label>
-        <input class="input-field" id="f-autor" type="text" placeholder="Nombre del autor" value="${libro.autor || ''}" required />
+        <select class="input-field input-select" id="f-autor" required>
+          <option value="">Selecciona un autor…</option>
+          ${opcionesAutores}
+        </select>
       </div>
     </div>
 
@@ -186,9 +210,22 @@ function formLibroHTML(libro = {}) {
 }
 
 function recogerDatosLibro() {
+  const autorSelect = document.getElementById('f-autor');
+  const autorOption = autorSelect?.options[autorSelect.selectedIndex];
+  const autorId = autorOption?.value || '';
+
+  let autor = null;
+  if (autorId) {
+    autor = {
+      autor_id: autorId,
+      name: autorOption?.dataset.name || '',
+      nacionalidad: autorOption?.dataset.nacionalidad || '',
+    };
+  }
+
   return {
     titulo:      document.getElementById('f-titulo')?.value.trim(),
-    autor:       document.getElementById('f-autor')?.value.trim(),
+    autor:       autor,
     genero:      document.getElementById('f-genero')?.value,
     editorial:   document.getElementById('f-editorial')?.value.trim() || undefined,
     anio:        document.getElementById('f-anio')?.value
@@ -200,46 +237,54 @@ function recogerDatosLibro() {
   };
 }
 
-function abrirCrearLibro() {
-  modal.open(
-    'Nuevo Libro',
-    formLibroHTML(),
-    async () => {
-      const datos = recogerDatosLibro();
-      if (!datos.titulo || !datos.autor || !datos.genero) {
-        showToast('Título, autor y género son obligatorios.', 'warning');
-        return;
-      }
-      try {
-        await librosAPI.create(datos);
-        showToast('Libro creado exitosamente.', 'success');
-        modal.close();
-        cargarLibros();
-      } catch (err) {
-        showToast(`Error: ${err.message}`, 'error');
-      }
+async function abrirCrearLibro() {
+  modal.open('Nuevo Libro', '<div class="loader visible" style="margin:2rem auto"></div>', () => {});
+  const formHTML = await formLibroHTML();
+  document.getElementById('modal-body').innerHTML = formHTML;
+
+  const submitBtn = document.getElementById('modal-submit');
+  const newBtn = submitBtn.cloneNode(true);
+  submitBtn.replaceWith(newBtn);
+
+  newBtn.addEventListener('click', async () => {
+    const datos = recogerDatosLibro();
+    if (!datos.titulo || !datos.autor || !datos.genero) {
+      showToast('Título, autor y género son obligatorios.', 'warning');
+      return;
     }
-  );
+    try {
+      await librosAPI.create(datos);
+      showToast('Libro creado exitosamente.', 'success');
+      modal.close();
+      cargarLibros();
+    } catch (err) {
+      showToast(`Error: ${err.message}`, 'error');
+    }
+  });
 }
 
 async function abrirEditarLibro(id) {
   try {
     const libro = await librosAPI.getById(id);
-    modal.open(
-      'Editar Libro',
-      formLibroHTML(libro),
-      async () => {
-        const datos = recogerDatosLibro();
-        try {
-          await librosAPI.update(id, datos);
-          showToast('Libro actualizado.', 'success');
-          modal.close();
-          cargarLibros();
-        } catch (err) {
-          showToast(`Error: ${err.message}`, 'error');
-        }
+    modal.open('Editar Libro', '<div class="loader visible" style="margin:2rem auto"></div>', () => {});
+    const formHTML = await formLibroHTML(libro);
+    document.getElementById('modal-body').innerHTML = formHTML;
+
+    const submitBtn = document.getElementById('modal-submit');
+    const newBtn = submitBtn.cloneNode(true);
+    submitBtn.replaceWith(newBtn);
+
+    newBtn.addEventListener('click', async () => {
+      const datos = recogerDatosLibro();
+      try {
+        await librosAPI.update(id, datos);
+        showToast('Libro actualizado.', 'success');
+        modal.close();
+        cargarLibros();
+      } catch (err) {
+        showToast(`Error: ${err.message}`, 'error');
       }
-    );
+    });
   } catch (err) {
     showToast(`Error al cargar libro: ${err.message}`, 'error');
   }

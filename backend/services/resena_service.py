@@ -22,25 +22,58 @@ class ResenaService:
         self.col_libros = db[Libro.COLECCION]
         self.col_usuarios = db[Usuario.COLECCION]
 
+    def _actualizar_estadisticas_libro(self, libro_id: str):
+        pipeline = [
+            {"$match": {"libro.libro_id": libro_id}},
+            {"$group": {
+                "_id": "$libro.libro_id",
+                "promedio": {"$avg": "$calificacion"},
+                "total": {"$sum": 1},
+            }},
+        ]
+        resultado = list(self.col.aggregate(pipeline))
+        if resultado:
+            stats = {
+                "promedioCalificacion": round(resultado[0]["promedio"], 1),
+                "totalResenas": resultado[0]["total"],
+            }
+        else:
+            stats = {"promedioCalificacion": 0, "totalResenas": 0}
+        self.col_libros.update_one(
+            {"libro_id": libro_id},
+            {"$set": {"estadisticas": stats}}
+        )
+
     def crear(self, datos: dict) -> dict:
         usuario_id = datos.get("usuario_id", "")
         libro_id = datos.get("libro_id", "")
 
-        if not self.col_libros.find_one({"libro_id": libro_id}):
+        libro_doc = self.col_libros.find_one({"libro_id": libro_id})
+        if not libro_doc:
             raise ValueError("El libro especificado no existe.")
 
-        usuario = self.col_usuarios.find_one({"usuario_id": usuario_id})
-        if not usuario:
+        usuario_doc = self.col_usuarios.find_one({"usuario_id": usuario_id})
+        if not usuario_doc:
             raise ValueError("El usuario especificado no existe.")
-        if not usuario.get("activo", False):
+        if not usuario_doc.get("activo", False):
             raise ValueError("La cuenta del usuario no esta activa.")
 
-        if self.col.find_one({"usuario_id": usuario_id, "libro_id": libro_id}):
+        if self.col.find_one({"usuario.usuario_id": usuario_id, "libro.libro_id": libro_id}):
             raise ValueError("Este usuario ya tiene una resena para este libro.")
 
+        usuario_ref = {
+            "usuario_id": usuario_doc["usuario_id"],
+            "nombre": usuario_doc["nombre"],
+            "correo": usuario_doc["correo"],
+        }
+        libro_ref = {
+            "libro_id": libro_doc["libro_id"],
+            "titulo": libro_doc["titulo"],
+        }
+
         resena = Resena(
-            usuario_id=usuario_id,
-            libro_id=libro_id,
+            usuario=usuario_ref,
+            libro=libro_ref,
             calificacion=datos.get("calificacion"),
             comentario=datos.get("comentario"),
         )
@@ -52,9 +85,10 @@ class ResenaService:
         resena.resena_id = generar_id("RES", "resenas", self.db)
         doc = resena.to_dict()
         self.col.insert_one(doc)
+        self._actualizar_estadisticas_libro(libro_id)
         return _serializar(doc)
 
-    def obtener_todos(self, skip: int = 0, limit: int = 20) -> list[dict]:
+    def obtener_todos(self, skip: int = 0, limit: int = 100) -> list[dict]:
         docs = self.col.find({}).sort("fecha", -1).skip(skip).limit(limit)
         return [_serializar(d) for d in docs]
 
@@ -63,11 +97,11 @@ class ResenaService:
         return _serializar(doc) if doc else None
 
     def obtener_por_libro(self, libro_id: str) -> list[dict]:
-        docs = self.col.find({"libro_id": libro_id}).sort("fecha", -1)
+        docs = self.col.find({"libro.libro_id": libro_id}).sort("fecha", -1)
         return [_serializar(d) for d in docs]
 
     def obtener_por_usuario(self, usuario_id: str) -> list[dict]:
-        docs = self.col.find({"usuario_id": usuario_id}).sort("fecha", -1)
+        docs = self.col.find({"usuario.usuario_id": usuario_id}).sort("fecha", -1)
         return [_serializar(d) for d in docs]
 
     def obtener_por_calificacion_minima(self, minimo: int) -> list[dict]:
@@ -97,17 +131,25 @@ class ResenaService:
             {"$set": actualizacion},
             return_document=True,
         )
+        if resultado:
+            self._actualizar_estadisticas_libro(resultado["libro"]["libro_id"])
         return _serializar(resultado) if resultado else None
 
     def eliminar(self, resena_id: str) -> bool:
+        resena = self.col.find_one({"resena_id": resena_id})
+        if not resena:
+            return False
+        libro_id = resena["libro"]["libro_id"]
         resultado = self.col.delete_one({"resena_id": resena_id})
+        if resultado.deleted_count:
+            self._actualizar_estadisticas_libro(libro_id)
         return resultado.deleted_count > 0
 
     def promedio_calificacion_libro(self, libro_id: str) -> dict:
         pipeline = [
-            {"$match": {"libro_id": libro_id}},
+            {"$match": {"libro.libro_id": libro_id}},
             {"$group": {
-                "_id": "$libro_id",
+                "_id": "$libro.libro_id",
                 "promedio": {"$avg": "$calificacion"},
                 "total_resenas": {"$sum": 1},
             }},
@@ -126,7 +168,7 @@ class ResenaService:
     def libros_mejor_calificados(self, top: int = 5) -> list[dict]:
         pipeline = [
             {"$group": {
-                "_id": "$libro_id",
+                "_id": "$libro.libro_id",
                 "promedio": {"$avg": "$calificacion"},
                 "total_resenas": {"$sum": 1},
             }},
