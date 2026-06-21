@@ -6,6 +6,7 @@
 /* ── Estado local ─────────────────────────────────────────────────── */
 let prestamosData = [];
 let sortStatePrestamos = { field: null, dir: 'asc' };
+let pagPrestamos = createPaginationState(25);
 
 function ordenarPrestamos(field) {
   toggleSort(sortStatePrestamos, field, prestamosData, renderTablaPrestamos);
@@ -14,7 +15,9 @@ function ordenarPrestamos(field) {
 
 /* ── Cargar y renderizar ──────────────────────────────────────────── */
 
-async function cargarPrestamos() {
+async function cargarPrestamos(pagina) {
+  if (pagina !== undefined) pagPrestamos.page = pagina;
+
   showLoader('prestamos-loader');
   hideEmpty('prestamos-empty');
 
@@ -22,9 +25,26 @@ async function cargarPrestamos() {
   const estado = document.getElementById('prestamos-filter-estado')?.value;
   if (estado) params.estado = estado;
 
+  const hayFiltro = estado;
+  if (!hayFiltro) {
+    const { skip, limit } = getPaginationParams(pagPrestamos);
+    params.skip  = skip;
+    params.limit = limit;
+  }
+
   try {
     const data = await prestamosAPI.getAll(params);
-    prestamosData = Array.isArray(data) ? data : (data.prestamos || []);
+
+    if (data.total !== undefined) {
+      prestamosData = data.prestamos || [];
+      updatePaginationState(pagPrestamos, data.total);
+      renderPaginacion('prestamos-pagination', pagPrestamos, cargarPrestamos);
+    } else {
+      prestamosData = Array.isArray(data) ? data : (data.prestamos || []);
+      const pc = document.getElementById('prestamos-pagination');
+      if (pc) pc.innerHTML = '';
+    }
+
     renderTablaPrestamos(prestamosData);
   } catch (err) {
     showToast(`Error al cargar préstamos: ${err.message}`, 'error');
@@ -199,7 +219,10 @@ async function abrirCrearPrestamo() {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('prestamos-btn-crear')?.addEventListener('click', abrirCrearPrestamo);
-  document.getElementById('prestamos-filter-estado')?.addEventListener('change', cargarPrestamos);
+  document.getElementById('prestamos-filter-estado')?.addEventListener('change', () => {
+    pagPrestamos.page = 1;
+    cargarPrestamos();
+  });
 
   registerLoader('/prestamos', cargarPrestamos);
 });

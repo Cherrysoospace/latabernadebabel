@@ -88,9 +88,16 @@ class ResenaService:
         self._actualizar_estadisticas_libro(libro_id)
         return _serializar(doc)
 
-    def obtener_todos(self, skip: int = 0, limit: int = 100) -> list[dict]:
-        docs = self.col.find({}).sort("fecha", -1).skip(skip).limit(limit)
-        return [_serializar(d) for d in docs]
+    def obtener_todos(self, skip: int = 0, limit: int = 20) -> dict:
+        filtro = {}
+        total = self.col.count_documents(filtro)
+        docs = self.col.find(filtro).sort("resena_id", 1).skip(skip).limit(limit)
+        return {
+            "items": [_serializar(d) for d in docs],
+            "total": total,
+            "skip": skip,
+            "limit": limit,
+        }
 
     def obtener_por_id(self, resena_id: str) -> dict | None:
         doc = self.col.find_one({"resena_id": resena_id})

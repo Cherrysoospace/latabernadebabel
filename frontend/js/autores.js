@@ -5,6 +5,7 @@
 /* ── Estado local ─────────────────────────────────────────────────── */
 let autoresData = [];
 let sortStateAutores = { field: null, dir: 'asc' };
+let pagAutores = createPaginationState(25);
 
 function ordenarAutores(field) {
   toggleSort(sortStateAutores, field, autoresData, renderTablaAutores);
@@ -13,7 +14,9 @@ function ordenarAutores(field) {
 
 /* ── Cargar y renderizar ──────────────────────────────────────────── */
 
-async function cargarAutores() {
+async function cargarAutores(pagina) {
+  if (pagina !== undefined) pagAutores.page = pagina;
+
   showLoader('autores-loader');
   hideEmpty('autores-empty');
 
@@ -21,9 +24,26 @@ async function cargarAutores() {
   const q = document.getElementById('autores-search')?.value.trim();
   if (q) params.q = q;
 
+  const hayFiltro = q;
+  if (!hayFiltro) {
+    const { skip, limit } = getPaginationParams(pagAutores);
+    params.skip  = skip;
+    params.limit = limit;
+  }
+
   try {
     const data = await autoresAPI.getAll(params);
-    autoresData = Array.isArray(data) ? data : (data.autores || []);
+
+    if (data.total !== undefined) {
+      autoresData = data.autores || [];
+      updatePaginationState(pagAutores, data.total);
+      renderPaginacion('autores-pagination', pagAutores, cargarAutores);
+    } else {
+      autoresData = Array.isArray(data) ? data : (data.autores || []);
+      const pc = document.getElementById('autores-pagination');
+      if (pc) pc.innerHTML = '';
+    }
+
     renderTablaAutores(autoresData);
   } catch (err) {
     showToast(`Error al cargar autores: ${err.message}`, 'error');
@@ -194,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let debounceTimer;
   document.getElementById('autores-search')?.addEventListener('input', () => {
+    pagAutores.page = 1;
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(cargarAutores, 350);
   });

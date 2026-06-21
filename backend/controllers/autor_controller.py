@@ -68,7 +68,13 @@ def obtener_autores():
     except ValueError:
         return jsonify({"error": "Los parámetros 'skip' y 'limit' deben ser enteros."}), 400
 
-    return jsonify(service.obtener_todos(skip=skip, limit=limit)), 200
+    resultado = service.obtener_todos(skip=skip, limit=limit)
+    return jsonify({
+        "autores": resultado["items"],
+        "total":   resultado["total"],
+        "skip":    resultado["skip"],
+        "limit":   resultado["limit"],
+    }), 200
 
 
 def obtener_autor(autor_id: str):

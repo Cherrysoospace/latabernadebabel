@@ -68,7 +68,13 @@ def obtener_usuarios():
     except ValueError:
         return jsonify({"error": "Los parámetros 'skip' y 'limit' deben ser enteros."}), 400
 
-    return jsonify(service.obtener_todos(skip=skip, limit=limit)), 200
+    resultado = service.obtener_todos(skip=skip, limit=limit)
+    return jsonify({
+        "usuarios": resultado["items"],
+        "total":    resultado["total"],
+        "skip":     resultado["skip"],
+        "limit":    resultado["limit"],
+    }), 200
 
 
 def obtener_usuario(usuario_id: str):

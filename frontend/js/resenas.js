@@ -6,6 +6,7 @@
 /* ── Estado local ─────────────────────────────────────────────────── */
 let resenasData = [];
 let sortStateResenas = { field: null, dir: 'asc' };
+let pagResenas = createPaginationState(25);
 
 function ordenarResenas(field) {
   toggleSort(sortStateResenas, field, resenasData, renderTablaResenas);
@@ -14,7 +15,9 @@ function ordenarResenas(field) {
 
 /* ── Cargar y renderizar ──────────────────────────────────────────── */
 
-async function cargarResenas() {
+async function cargarResenas(pagina) {
+  if (pagina !== undefined) pagResenas.page = pagina;
+
   showLoader('resenas-loader');
   hideEmpty('resenas-empty');
 
@@ -22,9 +25,26 @@ async function cargarResenas() {
   const minCal = document.getElementById('resenas-filter-calificacion')?.value;
   if (minCal) params.calificacion_min = minCal;
 
+  const hayFiltro = minCal;
+  if (!hayFiltro) {
+    const { skip, limit } = getPaginationParams(pagResenas);
+    params.skip  = skip;
+    params.limit = limit;
+  }
+
   try {
     const data = await resenasAPI.getAll(params);
-    resenasData = Array.isArray(data) ? data : (data.resenas || []);
+
+    if (data.total !== undefined) {
+      resenasData = data.resenas || [];
+      updatePaginationState(pagResenas, data.total);
+      renderPaginacion('resenas-pagination', pagResenas, cargarResenas);
+    } else {
+      resenasData = Array.isArray(data) ? data : (data.resenas || []);
+      const pc = document.getElementById('resenas-pagination');
+      if (pc) pc.innerHTML = '';
+    }
+
     renderTablaResenas(resenasData);
   } catch (err) {
     showToast(`Error al cargar reseñas: ${err.message}`, 'error');
@@ -254,7 +274,10 @@ async function abrirEditarResena(id) {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('resenas-btn-crear')?.addEventListener('click', abrirCrearResena);
-  document.getElementById('resenas-filter-calificacion')?.addEventListener('change', cargarResenas);
+  document.getElementById('resenas-filter-calificacion')?.addEventListener('change', () => {
+    pagResenas.page = 1;
+    cargarResenas();
+  });
 
   registerLoader('/resenas', cargarResenas);
 });

@@ -82,7 +82,13 @@ def obtener_resenas():
     except ValueError:
         return jsonify({"error": "Los parámetros 'skip' y 'limit' deben ser enteros."}), 400
 
-    return jsonify(service.obtener_todos(skip=skip, limit=limit)), 200
+    resultado = service.obtener_todos(skip=skip, limit=limit)
+    return jsonify({
+        "resenas": resultado["items"],
+        "total":   resultado["total"],
+        "skip":    resultado["skip"],
+        "limit":   resultado["limit"],
+    }), 200
 
 
 def obtener_resena(resena_id: str):

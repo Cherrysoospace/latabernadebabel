@@ -1,6 +1,8 @@
 from pymongo.database import Database
 
 from models.autor_model import Autor
+from models.libro_model import Libro
+from models.prestamo_model import Prestamo
 from config import generar_id
 
 
@@ -15,6 +17,8 @@ class AutorService:
     def __init__(self, db: Database):
         self.db = db
         self.col = db[Autor.COLECCION]
+        self.col_libros = db[Libro.COLECCION]
+        self.col_prestamos = db[Prestamo.COLECCION]
 
     def crear(self, datos: dict) -> dict:
         nombre = datos.get("nombre", "").strip()
@@ -41,11 +45,18 @@ class AutorService:
         self.col.insert_one(doc)
         return _serializar(doc)
 
-    def obtener_todos(self, skip: int = 0, limit: int = 20) -> list[dict]:
-        docs = self.col.find({}, {"_id": 1, "autor_id": 1, "nombre": 1, "nacionalidad": 1,
-                                   "obras": 1, "premios": 1})
-        docs = docs.sort("fecha_registro", -1).skip(skip).limit(limit)
-        return [_serializar(d) for d in docs]
+    def obtener_todos(self, skip: int = 0, limit: int = 20) -> dict:
+        filtro = {}
+        total = self.col.count_documents(filtro)
+        docs = self.col.find(filtro, {"_id": 1, "autor_id": 1, "nombre": 1, "nacionalidad": 1,
+                                      "obras": 1, "premios": 1})
+        docs = docs.sort("autor_id", 1).skip(skip).limit(limit)
+        return {
+            "items": [_serializar(d) for d in docs],
+            "total": total,
+            "skip": skip,
+            "limit": limit,
+        }
 
     def obtener_por_id(self, autor_id: str) -> dict | None:
         doc = self.col.find_one({"autor_id": autor_id})
@@ -70,6 +81,26 @@ class AutorService:
         )
         return [_serializar(d) for d in docs]
 
+    def _propagar_cambios(self, autor_id: str, actualizacion: dict):
+        if "nombre" in actualizacion:
+            self.col_libros.update_many(
+                {"autor.autor_id": autor_id},
+                {"$set": {"autor.name": actualizacion["nombre"]}},
+            )
+            self.col_prestamos.update_many(
+                {"libro.autor.autor_id": autor_id},
+                {"$set": {"libro.autor.name": actualizacion["nombre"]}},
+            )
+        if "nacionalidad" in actualizacion:
+            self.col_libros.update_many(
+                {"autor.autor_id": autor_id},
+                {"$set": {"autor.nacionalidad": actualizacion["nacionalidad"]}},
+            )
+            self.col_prestamos.update_many(
+                {"libro.autor.autor_id": autor_id},
+                {"$set": {"libro.autor.nacionalidad": actualizacion["nacionalidad"]}},
+            )
+
     def actualizar(self, autor_id: str, datos: dict) -> dict | None:
         campos_permitidos = {"nombre", "biografia", "nacionalidad"}
         actualizacion = {k: v for k, v in datos.items() if k in campos_permitidos}
@@ -82,6 +113,8 @@ class AutorService:
             {"$set": actualizacion},
             return_document=True,
         )
+        if resultado:
+            self._propagar_cambios(autor_id, actualizacion)
         return _serializar(resultado) if resultado else None
 
     def agregar_obra(self, autor_id: str, titulo: str) -> dict | None:
@@ -118,6 +151,11 @@ class AutorService:
         return _serializar(resultado) if resultado else None
 
     def eliminar(self, autor_id: str) -> bool:
+        n_libros = self.col_libros.count_documents({"autor.autor_id": autor_id})
+        if n_libros:
+            raise ValueError(
+                f"No se puede eliminar el autor: está referenciado en {n_libros} libro(s)."
+            )
         resultado = self.col.delete_one({"autor_id": autor_id})
         return resultado.deleted_count > 0
 

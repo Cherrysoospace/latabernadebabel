@@ -11,6 +11,7 @@
 /* ── Estado local ─────────────────────────────────────────────────── */
 let librosData = [];  // Cache de los libros actualmente mostrados
 let sortStateLibros = { field: null, dir: 'asc' };
+let pagLibros = createPaginationState(25);
 
 function ordenarLibros(field) {
   toggleSort(sortStateLibros, field, librosData, renderTablaLibros);
@@ -19,7 +20,10 @@ function ordenarLibros(field) {
 
 /* ── Cargar y renderizar ──────────────────────────────────────────── */
 
-async function cargarLibros() {
+async function cargarLibros(pagina) {
+  // Si se pasa una página concreta, actualizamos el estado
+  if (pagina !== undefined) pagLibros.page = pagina;
+
   showLoader('libros-loader');
   hideEmpty('libros-empty');
 
@@ -33,10 +37,30 @@ async function cargarLibros() {
   if (genero)     params.genero = genero;
   if (disponible) params.disponible = disponible;
 
+  // Solo paginar cuando NO hay filtros de texto/genero/disponible
+  const hayFiltro = q || genero || disponible;
+  if (!hayFiltro) {
+    const { skip, limit } = getPaginationParams(pagLibros);
+    params.skip  = skip;
+    params.limit = limit;
+  }
+
   try {
     const data = await librosAPI.getAll(params);
-    // El endpoint puede devolver un array directo o { libros: [...] }
-    librosData = Array.isArray(data) ? data : (data.libros || []);
+
+    if (data.total !== undefined) {
+      // Respuesta paginada: { libros, total, skip, limit }
+      librosData = data.libros || [];
+      updatePaginationState(pagLibros, data.total);
+      renderPaginacion('libros-pagination', pagLibros, cargarLibros);
+    } else {
+      // Respuesta de filtro (array o { libros: [...] })
+      librosData = Array.isArray(data) ? data : (data.libros || []);
+      // Ocultar paginación cuando se filtra
+      const pc = document.getElementById('libros-pagination');
+      if (pc) pc.innerHTML = '';
+    }
+
     renderTablaLibros(librosData);
   } catch (err) {
     showToast(`Error al cargar libros: ${err.message}`, 'error');
@@ -296,16 +320,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // Botón crear
   document.getElementById('libros-btn-crear')?.addEventListener('click', abrirCrearLibro);
 
-  // Filtros con debounce
+  // Filtros con debounce — resetan a página 1
   let debounceTimer;
   function filtrarLibros() {
+    pagLibros.page = 1;
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(cargarLibros, 350);
   }
+  function filtrarLibrosInstant() {
+    pagLibros.page = 1;
+    cargarLibros();
+  }
 
   document.getElementById('libros-search')?.addEventListener('input', filtrarLibros);
-  document.getElementById('libros-filter-genero')?.addEventListener('change', cargarLibros);
-  document.getElementById('libros-filter-disponible')?.addEventListener('change', cargarLibros);
+  document.getElementById('libros-filter-genero')?.addEventListener('change', filtrarLibrosInstant);
+  document.getElementById('libros-filter-disponible')?.addEventListener('change', filtrarLibrosInstant);
 
   // Registrar en el router
   registerLoader('/libros', cargarLibros);

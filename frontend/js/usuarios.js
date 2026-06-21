@@ -5,6 +5,7 @@
 /* ── Estado local ─────────────────────────────────────────────────── */
 let usuariosData = [];
 let sortStateUsuarios = { field: null, dir: 'asc' };
+let pagUsuarios = createPaginationState(25);
 
 function ordenarUsuarios(field) {
   toggleSort(sortStateUsuarios, field, usuariosData, renderTablaUsuarios);
@@ -13,7 +14,9 @@ function ordenarUsuarios(field) {
 
 /* ── Cargar y renderizar ──────────────────────────────────────────── */
 
-async function cargarUsuarios() {
+async function cargarUsuarios(pagina) {
+  if (pagina !== undefined) pagUsuarios.page = pagina;
+
   showLoader('usuarios-loader');
   hideEmpty('usuarios-empty');
 
@@ -24,9 +27,26 @@ async function cargarUsuarios() {
   if (membresia) params.membresia = membresia;
   if (activo)    params.activo    = activo;
 
+  const hayFiltro = membresia || activo;
+  if (!hayFiltro) {
+    const { skip, limit } = getPaginationParams(pagUsuarios);
+    params.skip  = skip;
+    params.limit = limit;
+  }
+
   try {
     const data = await usuariosAPI.getAll(params);
-    usuariosData = Array.isArray(data) ? data : (data.usuarios || []);
+
+    if (data.total !== undefined) {
+      usuariosData = data.usuarios || [];
+      updatePaginationState(pagUsuarios, data.total);
+      renderPaginacion('usuarios-pagination', pagUsuarios, cargarUsuarios);
+    } else {
+      usuariosData = Array.isArray(data) ? data : (data.usuarios || []);
+      const pc = document.getElementById('usuarios-pagination');
+      if (pc) pc.innerHTML = '';
+    }
+
     renderTablaUsuarios(usuariosData);
   } catch (err) {
     showToast(`Error al cargar usuarios: ${err.message}`, 'error');
@@ -207,8 +227,13 @@ async function abrirEditarUsuario(id) {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('usuarios-btn-crear')?.addEventListener('click', abrirCrearUsuario);
-  document.getElementById('usuarios-filter-membresia')?.addEventListener('change', cargarUsuarios);
-  document.getElementById('usuarios-filter-activo')?.addEventListener('change', cargarUsuarios);
+
+  function filtrarUsuariosInstant() {
+    pagUsuarios.page = 1;
+    cargarUsuarios();
+  }
+  document.getElementById('usuarios-filter-membresia')?.addEventListener('change', filtrarUsuariosInstant);
+  document.getElementById('usuarios-filter-activo')?.addEventListener('change', filtrarUsuariosInstant);
 
   registerLoader('/usuarios', cargarUsuarios);
 });
