@@ -22,10 +22,12 @@ async function cargarResenas(pagina) {
   hideEmpty('resenas-empty');
 
   const params = {};
+  const q = document.getElementById('resenas-search')?.value.trim();
+  if (q) params.q = q;
   const minCal = document.getElementById('resenas-filter-calificacion')?.value;
   if (minCal) params.calificacion_min = minCal;
 
-  const hayFiltro = minCal;
+  const hayFiltro = q || minCal;
   if (!hayFiltro) {
     const { skip, limit } = getPaginationParams(pagResenas);
     params.skip  = skip;
@@ -142,8 +144,8 @@ async function buildFormResenaHTML(r = {}) {
   let libros   = [];
   try {
     const [uData, lData] = await Promise.all([
-      usuariosAPI.getAll({ limit: 200 }),
-      librosAPI.getAll({ limit: 200 }),
+      usuariosAPI.getAll({ activo: 'true', limit: 200 }),
+      librosAPI.getAll({ limit: 1000 }),
     ]);
     usuarios = Array.isArray(uData) ? uData : (uData.usuarios || []);
     libros   = Array.isArray(lData) ? lData : (lData.libros   || []);
@@ -277,6 +279,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('resenas-filter-calificacion')?.addEventListener('change', () => {
     pagResenas.page = 1;
     cargarResenas();
+  });
+
+  let debounceResenas;
+  document.getElementById('resenas-search')?.addEventListener('input', () => {
+    pagResenas.page = 1;
+    clearTimeout(debounceResenas);
+    debounceResenas = setTimeout(cargarResenas, 350);
   });
 
   registerLoader('/resenas', cargarResenas);

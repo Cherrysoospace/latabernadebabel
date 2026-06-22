@@ -21,13 +21,15 @@ async function cargarUsuarios(pagina) {
   hideEmpty('usuarios-empty');
 
   const params = {};
+  const q = document.getElementById('usuarios-search')?.value.trim();
+  if (q) params.q = q;
   const membresia = document.getElementById('usuarios-filter-membresia')?.value;
   const activo    = document.getElementById('usuarios-filter-activo')?.value;
 
   if (membresia) params.membresia = membresia;
   if (activo)    params.activo    = activo;
 
-  const hayFiltro = membresia || activo;
+  const hayFiltro = q || membresia || activo;
   if (!hayFiltro) {
     const { skip, limit } = getPaginationParams(pagUsuarios);
     params.skip  = skip;
@@ -234,6 +236,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   document.getElementById('usuarios-filter-membresia')?.addEventListener('change', filtrarUsuariosInstant);
   document.getElementById('usuarios-filter-activo')?.addEventListener('change', filtrarUsuariosInstant);
+
+  let debounceUsuarios;
+  document.getElementById('usuarios-search')?.addEventListener('input', () => {
+    pagUsuarios.page = 1;
+    clearTimeout(debounceUsuarios);
+    debounceUsuarios = setTimeout(cargarUsuarios, 350);
+  });
 
   registerLoader('/usuarios', cargarUsuarios);
 });

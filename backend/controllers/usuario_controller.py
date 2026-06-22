@@ -48,6 +48,10 @@ def obtener_usuarios():
     """
     service = _get_service()
 
+    termino = request.args.get("q")
+    if termino:
+        return jsonify(service.buscar_por_nombre(termino)), 200
+
     correo = request.args.get("correo")
     if correo:
         usuario = service.obtener_por_correo(correo)
@@ -59,7 +63,7 @@ def obtener_usuarios():
     if membresia:
         return jsonify(service.obtener_por_membresia(membresia)), 200
 
-    if request.args.get("activos") == "true":
+    if request.args.get("activo") == "true":
         return jsonify(service.obtener_activos()), 200
 
     try:

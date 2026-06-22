@@ -103,6 +103,11 @@ class ResenaService:
         doc = self.col.find_one({"resena_id": resena_id})
         return _serializar(doc) if doc else None
 
+    def buscar(self, termino: str) -> list[dict]:
+        regex = {"$regex": termino, "$options": "i"}
+        docs = self.col.find({"$or": [{"usuario.nombre": regex}, {"libro.titulo": regex}]})
+        return [_serializar(d) for d in docs]
+
     def obtener_por_libro(self, libro_id: str) -> list[dict]:
         docs = self.col.find({"libro.libro_id": libro_id}).sort("fecha", -1)
         return [_serializar(d) for d in docs]

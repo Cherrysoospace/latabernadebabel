@@ -61,6 +61,11 @@ class UsuarioService:
         doc = self.col.find_one({"usuario_id": usuario_id})
         return _serializar(doc) if doc else None
 
+    def buscar_por_nombre(self, termino: str) -> list[dict]:
+        regex = {"$regex": termino, "$options": "i"}
+        docs = self.col.find({"nombre": regex})
+        return [_serializar(d) for d in docs]
+
     def obtener_por_correo(self, correo: str) -> dict | None:
         doc = self.col.find_one({"correo": correo.strip().lower()})
         return _serializar(doc) if doc else None

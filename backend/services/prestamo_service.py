@@ -91,6 +91,11 @@ class PrestamoService:
         doc = self.col.find_one({"prestamo_id": prestamo_id})
         return _serializar(doc) if doc else None
 
+    def buscar(self, termino: str) -> list[dict]:
+        regex = {"$regex": termino, "$options": "i"}
+        docs = self.col.find({"$or": [{"usuario.nombre": regex}, {"libro.titulo": regex}]})
+        return [_serializar(d) for d in docs]
+
     def obtener_por_usuario(self, usuario_id: str) -> list[dict]:
         docs = self.col.find({"usuario.usuario_id": usuario_id})
         return [_serializar(d) for d in docs]

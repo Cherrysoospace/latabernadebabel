@@ -22,10 +22,12 @@ async function cargarPrestamos(pagina) {
   hideEmpty('prestamos-empty');
 
   const params = {};
+  const q = document.getElementById('prestamos-search')?.value.trim();
+  if (q) params.q = q;
   const estado = document.getElementById('prestamos-filter-estado')?.value;
   if (estado) params.estado = estado;
 
-  const hayFiltro = estado;
+  const hayFiltro = q || estado;
   if (!hayFiltro) {
     const { skip, limit } = getPaginationParams(pagPrestamos);
     params.skip  = skip;
@@ -222,6 +224,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('prestamos-filter-estado')?.addEventListener('change', () => {
     pagPrestamos.page = 1;
     cargarPrestamos();
+  });
+
+  let debouncePrestamos;
+  document.getElementById('prestamos-search')?.addEventListener('input', () => {
+    pagPrestamos.page = 1;
+    clearTimeout(debouncePrestamos);
+    debouncePrestamos = setTimeout(cargarPrestamos, 350);
   });
 
   registerLoader('/prestamos', cargarPrestamos);

@@ -55,6 +55,10 @@ def obtener_resenas():
     """
     service = _get_service()
 
+    termino = request.args.get("q")
+    if termino:
+        return jsonify(service.buscar(termino)), 200
+
     libro_id = request.args.get("libro_id")
     if libro_id:
         try:

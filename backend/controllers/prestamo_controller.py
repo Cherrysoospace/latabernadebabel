@@ -53,6 +53,10 @@ def obtener_prestamos():
     """
     service = _get_service()
 
+    termino = request.args.get("q")
+    if termino:
+        return jsonify(service.buscar(termino)), 200
+
     usuario_id = request.args.get("usuario_id")
     if usuario_id:
         try:
